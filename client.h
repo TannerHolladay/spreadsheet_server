@@ -10,5 +10,7 @@ class client{
 		//socket - be initialized by constructor
 		//currentSpreadsheet - string containing the name of the spreadsheet the client is connected to
 		char* currentSpreadsheet;
+		//this is the cell the client has selected
+		char* currentSelectedCell;
 };
 #endif
