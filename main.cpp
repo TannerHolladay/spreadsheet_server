@@ -1,7 +1,8 @@
 #include <iostream>
 
-void updateSelection(client c, char* cellNum){
+void updateSelection(client c, char* cellName){
 	//update the selectedCell field in the client object
+	c.setSelectedCell(cellName);
 }
 
 int main() {
