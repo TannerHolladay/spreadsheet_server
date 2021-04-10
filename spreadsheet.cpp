@@ -1,3 +1,5 @@
+#include <spreadsheet.h>
+
 void spreadsheet::spreadsheet(char* spreadsheetName){
 	this->spreadsheetName = spreadsheetName;
 }
