@@ -1,4 +1,4 @@
-#include <spreadsheet.h>
+#include "spreadsheet.h"
 
 void spreadsheet::spreadsheet(char* spreadsheetName){
 	this->spreadsheetName = spreadsheetName;
@@ -26,7 +26,8 @@ void spreadsheet::updateCell(char* cellName, char* contents){
 }
 
 void spreadsheet::undo(){
-	cellState state = undoStack.pop();
+	cellState state = undoStack.top();
+	undoStack.pop();
 
 	char* cellName = state.first;
 	char* oldContents = state.second;

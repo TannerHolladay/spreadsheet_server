@@ -1,11 +1,11 @@
-#include <client.h>
+#include "client.h"
 
-void client::client(socket soc, char* spreadsheet){
+client::client(socket soc, char* spreadsheet){
 	this->soc = soc;
 	this->currentSpreadsheet = spreadsheet;
 }
 
-void client::~client(){
+client::~client(){
 	//socket.close??
 }
 

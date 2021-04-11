@@ -1,8 +1,11 @@
 #ifndef CELL
 #define CELL
+
+#include <stack>
+
 class cell{
 	public:
-		void cell(char* contents);
+		cell(char* contents);
 		void updateContents(char* contents);
 		char* getContents();
 		void revertCell();

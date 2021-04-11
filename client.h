@@ -5,8 +5,8 @@
 
 class client{
 	public:
-		void client(socket soc, char* spreadsheet);
-		void ~client();
+		client(socket soc, char* spreadsheet);
+		~client();
 		char* getCurrentSpreadsheet();
 		void sendData(char* data);
 		void setSelectedCell(char* cellName);

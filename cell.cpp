@@ -1,6 +1,6 @@
-#include <cell.h>
+#include "cell.h"
 
-void cell::cell(char* contents){
+cell::cell(char* contents){
 	this->contents = contents;
 }
 
@@ -16,7 +16,8 @@ char* cell::getContents(){
 }
 
 void cell::revertCell(){
-	char* oldContents = revertStack.pop();
+	char* oldContents = revertStack.top();
+	revertStack.pop();
 
 	this->contents = contents;
 }

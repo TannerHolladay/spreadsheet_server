@@ -1,0 +1,76 @@
+g++ *.cpp
+In file included from client.cpp:1:
+client.h:8:16: error: expected ')' before '*' token
+    8 |   client(socket* soc, char* spreadsheet);
+      |         ~      ^
+      |                )
+client.h:15:3: error: 'socket' does not name a type
+   15 |   socket* soc;
+      |   ^~~~~~
+client.cpp:3:15: error: expected constructor, destructor, or type conversion before '(' token
+    3 | client::client(socket* soc, char* spreadsheet){
+      |               ^
+client.cpp: In member function 'void client::sendData(char*)':
+client.cpp:17:7: error: 'soc' was not declared in this scope
+   17 |  send(soc, data, strlen(data), 0);
+      |       ^~~
+client.cpp:17:18: error: 'strlen' was not declared in this scope
+   17 |  send(soc, data, strlen(data), 0);
+      |                  ^~~~~~
+client.cpp:2:1: note: 'strlen' is defined in header '<cstring>'; did you forget to '#include <cstring>'?
+    1 | #include "client.h"
+  +++ |+#include <cstring>
+    2 | 
+main.cpp:3:22: error: variable or field 'updateSelection' declared void
+    3 | void updateSelection(client c, char* cellName){
+      |                      ^~~~~~
+main.cpp:3:22: error: 'client' was not declared in this scope
+main.cpp:3:32: error: expected primary-expression before 'char'
+    3 | void updateSelection(client c, char* cellName){
+      |                                ^~~~
+In file included from spreadsheet.cpp:1:
+spreadsheet.h:16:19: error: 'cell' was not declared in this scope
+   16 |   std::map<char*, cell> cells;
+      |                   ^~~~
+spreadsheet.h:16:23: error: template argument 2 is invalid
+   16 |   std::map<char*, cell> cells;
+      |                       ^
+spreadsheet.h:16:23: error: template argument 4 is invalid
+spreadsheet.cpp:3:52: error: return type specification for constructor invalid
+    3 | void spreadsheet::spreadsheet(char* spreadsheetName){
+      |                                                    ^
+spreadsheet.cpp: In member function 'void spreadsheet::updateCell(char*, char*)':
+spreadsheet.cpp:8:24: warning: NULL used in arithmetic [-Wpointer-arith]
+    8 |  if(cells[cellName] == NULL){
+      |                        ^~~~
+spreadsheet.cpp:10:21: error: 'cell' was not declared in this scope; did you mean 'cells'?
+   10 |   cells[cellName] = cell(contents);
+      |                     ^~~~
+      |                     cells
+spreadsheet.cpp:12:23: warning: ISO C++ forbids converting a string constant to 'char*' [-Wwrite-strings]
+   12 |   char* oldContents = "";
+      |                       ^~
+spreadsheet.cpp:20:2: error: 'cell' was not declared in this scope; did you mean 'cells'?
+   20 |  cell c = cells[cellName];
+      |  ^~~~
+      |  cells
+spreadsheet.cpp:21:22: error: 'c' was not declared in this scope
+   21 |  char* oldContents = c.getContents();
+      |                      ^
+spreadsheet.cpp: In member function 'void spreadsheet::undo()':
+spreadsheet.cpp:35:2: error: 'cell' was not declared in this scope; did you mean 'cells'?
+   35 |  cell c = cells[cellName];
+      |  ^~~~
+      |  cells
+spreadsheet.cpp:36:2: error: 'c' was not declared in this scope
+   36 |  c.updateContents(oldContents);
+      |  ^
+spreadsheet.cpp: In member function 'void spreadsheet::revert(char*)':
+spreadsheet.cpp:40:2: error: 'cell' was not declared in this scope; did you mean 'cells'?
+   40 |  cell c = cells[cellName];
+      |  ^~~~
+      |  cells
+spreadsheet.cpp:41:22: error: 'c' was not declared in this scope
+   41 |  char* oldContents = c.getContents();
+      |                      ^
+make: *** [Makefile:2: all] Error 1
