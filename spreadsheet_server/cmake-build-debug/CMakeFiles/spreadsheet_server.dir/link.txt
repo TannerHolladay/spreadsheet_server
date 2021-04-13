@@ -1,0 +1,1 @@
+/usr/bin/g++  -g   CMakeFiles/spreadsheet_server.dir/main.cpp.o CMakeFiles/spreadsheet_server.dir/client.cpp.o CMakeFiles/spreadsheet_server.dir/cell.cpp.o CMakeFiles/spreadsheet_server.dir/spreadsheet.cpp.o  -o spreadsheet_server 

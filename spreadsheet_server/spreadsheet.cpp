@@ -1,17 +1,17 @@
 #include "spreadsheet.h"
 
-void spreadsheet::spreadsheet(char* spreadsheetName){
+spreadsheet::spreadsheet(char* spreadsheetName){
 	this->spreadsheetName = spreadsheetName;
 }
 
 void spreadsheet::updateCell(char* cellName, char* contents){
-	if(cells[cellName] == NULL){
+	if(cells.count(cellName) == 1){
 		//create a cell
 		cells[cellName] = cell(contents);
 
-		char* oldContents = "";
+		char* oldContents = const_cast<char*>("");
 
-		undoStack.push({cellName, oldContents});
+		undoStack.push(cellState(cellName, oldContents));
 
 		return;
 	}
@@ -20,7 +20,7 @@ void spreadsheet::updateCell(char* cellName, char* contents){
 	cell c = cells[cellName];
 	char* oldContents = c.getContents();
 
-	undoStack.push({cellName, oldContents});
+	undoStack.push(cellState(cellName, oldContents));
 
 	c.updateContents(contents);
 }
@@ -43,5 +43,5 @@ void spreadsheet::revert(char* cellName){
 	c.revertCell();
 
 	//allow the revert to be undone
-	undoStack.push({cellName, oldContents});
+	undoStack.push(cellState(cellName, oldContents));
 }

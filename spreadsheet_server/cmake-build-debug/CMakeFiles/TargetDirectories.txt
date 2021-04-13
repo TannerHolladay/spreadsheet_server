@@ -1,0 +1,3 @@
+/tmp/tmp.lwnVq8w6ga/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/tmp/tmp.lwnVq8w6ga/cmake-build-debug/CMakeFiles/edit_cache.dir
+/tmp/tmp.lwnVq8w6ga/cmake-build-debug/CMakeFiles/spreadsheet_server.dir

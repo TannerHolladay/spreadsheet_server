@@ -1,0 +1,4 @@
+Cannot generate into D:\projects\CS-3505\spreadsheet_server\cmake-build-debug
+It is already used for project \\wsl$\Ubuntu\tmp\tmp.lwnVq8w6ga
+
+Please either delete it manually or select another generation directory

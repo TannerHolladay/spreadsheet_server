@@ -1,8 +1,9 @@
 #ifndef SHEET
 #define SHEET
 
-#include <map>
 #include <stack>
+#include <map>
+#include "cell.h"
 
 typedef std::pair<char*, char*> cellState;
 

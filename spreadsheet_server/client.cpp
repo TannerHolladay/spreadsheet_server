@@ -1,8 +1,9 @@
 #include "client.h"
+#include <cstring>
 
-client::client(socket soc, char* spreadsheet){
+client::client(int soc, char* username){
 	this->soc = soc;
-	this->currentSpreadsheet = spreadsheet;
+	this->username = username;
 }
 
 client::~client(){

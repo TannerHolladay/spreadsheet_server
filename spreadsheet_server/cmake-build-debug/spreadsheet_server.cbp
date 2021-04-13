@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="spreadsheet_server"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/tmp/tmp.lwnVq8w6ga/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/tmp/tmp.lwnVq8w6ga/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/tmp/tmp.lwnVq8w6ga/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="spreadsheet_server">
+				<Option output="/tmp/tmp.lwnVq8w6ga/cmake-build-debug/spreadsheet_server" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/tmp/tmp.lwnVq8w6ga/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../include/c++/4.8.5"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../include/c++/4.8.5/x86_64-redhat-linux"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../include/c++/4.8.5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 spreadsheet_server"/>
+					<CompileFile command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="spreadsheet_server/fast">
+				<Option output="/tmp/tmp.lwnVq8w6ga/cmake-build-debug/spreadsheet_server" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/tmp/tmp.lwnVq8w6ga/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../include/c++/4.8.5"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../include/c++/4.8.5/x86_64-redhat-linux"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../include/c++/4.8.5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 spreadsheet_server/fast"/>
+					<CompileFile command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/local/bin/make -j8 -f &quot;/tmp/tmp.lwnVq8w6ga/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/tmp/tmp.lwnVq8w6ga/cell.cpp">
+			<Option target="spreadsheet_server"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.lwnVq8w6ga/cell.h">
+			<Option target="spreadsheet_server"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.lwnVq8w6ga/client.cpp">
+			<Option target="spreadsheet_server"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.lwnVq8w6ga/client.h">
+			<Option target="spreadsheet_server"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.lwnVq8w6ga/main.cpp">
+			<Option target="spreadsheet_server"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.lwnVq8w6ga/spreadsheet.cpp">
+			<Option target="spreadsheet_server"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.lwnVq8w6ga/spreadsheet.h">
+			<Option target="spreadsheet_server"/>
+		</Unit>
+		<Unit filename="/tmp/tmp.lwnVq8w6ga/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
