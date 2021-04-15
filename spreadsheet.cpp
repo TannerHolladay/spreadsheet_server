@@ -5,9 +5,10 @@ spreadsheet::spreadsheet(char* spreadsheetName){
 }
 
 void spreadsheet::updateCell(char* cellName, char* contents){
-	if(cells[cellName] == NULL){
+	//if cellName not in cells
+	if(cells.find(cellName) == cells.end()){
 		//create a cell
-		cells[cellName] = cell(contents);
+		cells[cellName] = cell(contents, cellName);
 
 		char* oldContents = "";
 
