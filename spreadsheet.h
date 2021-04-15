@@ -4,6 +4,8 @@
 #include <map>
 #include <stack>
 
+#include "cell.h"
+
 typedef std::pair<char*, char*> cellState;
 
 class spreadsheet{

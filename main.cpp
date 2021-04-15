@@ -1,4 +1,5 @@
 #include <iostream>
+#include "client.h"
 
 void updateSelection(client c, char* cellName){
 	//update the selectedCell field in the client object

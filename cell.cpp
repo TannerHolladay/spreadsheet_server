@@ -1,7 +1,8 @@
 #include "cell.h"
 
-cell::cell(char* contents){
+cell::cell(char* contents, char* cellName){
 	this->contents = contents;
+	this->cellName = cellName;
 }
 
 void cell::updateContents(char* contents){
@@ -20,4 +21,8 @@ void cell::revertCell(){
 	revertStack.pop();
 
 	this->contents = contents;
+}
+
+bool cell::operator==(const cell& c) const{
+	return ((this->contents == c.contents) && (this->cellName == c.cellName));
 }

@@ -1,7 +1,7 @@
 #include "client.h"
 
-client::client(socket soc, char* spreadsheet){
-	this->soc = soc;
+client::client(tcp::socket soc, char* spreadsheet){
+	this->soc = std::move(soc);
 	this->currentSpreadsheet = spreadsheet;
 }
 
@@ -14,7 +14,7 @@ char* client::getCurrentSpreadsheet(){
 }
 
 void client::sendData(char* data){
-	send(soc, data, strlen(data), 0);
+	soc.send(boost::asio::buffer(data, strlen(data)));
 }
 
 void client::setSelectedCell(char* cellName){
