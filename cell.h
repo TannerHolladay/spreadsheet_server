@@ -3,15 +3,22 @@
 
 #include <stack>
 
-class cell{
-	public:
-		cell(char* contents);
-		void updateContents(char* contents);
-		char* getContents();
-		void revertCell();
-	private:
-		std::stack<char*> revertStack;
-		char* cellName;
-		char* contents;
+class cell {
+public:
+    cell();
+
+    cell(std::string contents);
+
+    void updateContents(std::string contents);
+
+    std::string getContents();
+
+    void revertCell();
+
+private:
+    std::stack<std::string> revertStack;
+    std::string cellName;
+    std::string contents;
 };
+
 #endif
