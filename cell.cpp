@@ -4,8 +4,9 @@
 cell::cell(){
 }
 
-cell::cell(std::string contents){
+cell::cell(std::string contents, std::string cellName){
 	this->contents = contents;
+    this->cellName = cellName;
 }
 
 void cell::updateContents(std::string contents){
@@ -13,6 +14,10 @@ void cell::updateContents(std::string contents){
 	revertStack.push(this->contents);
 
 	this->contents = contents;
+}
+
+bool cell::operator==(const cell& c) const {
+    return ((this->contents == c.contents) && (this->cellName == c.cellName));
 }
 
 std::string cell::getContents(){

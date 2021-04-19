@@ -7,13 +7,15 @@ class cell {
 public:
     cell();
 
-    cell(std::string contents);
+    cell(std::string contents, std::string cellName);
 
     void updateContents(std::string contents);
 
     std::string getContents();
 
     void revertCell();
+
+    bool operator==(const cell& c) const;
 
 private:
     std::stack<std::string> revertStack;

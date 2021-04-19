@@ -8,9 +8,10 @@ spreadsheet::spreadsheet(std::string spreadsheetName) {
 }
 
 void spreadsheet::updateCell(std::string cellName, std::string contents) {
-    if (cells.count(cellName) == 0) {
+    //if cellName not in cells
+    if(cells.find(cellName) == cells.end()){
         //create a cell
-        cells[cellName] = cell(contents);
+        cells[cellName] = cell(contents, cellName);
 
         std::string oldContents = "";
 
