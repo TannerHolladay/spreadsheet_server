@@ -1,28 +1,32 @@
+#include <string>
 #include "cell.h"
 
-cell::cell(char* contents, char* cellName){
-	this->contents = contents;
-	this->cellName = cellName;
+cell::cell(){
 }
 
-void cell::updateContents(char* contents){
+cell::cell(std::string contents, std::string cellName){
+	this->contents = contents;
+    this->cellName = cellName;
+}
+
+void cell::updateContents(std::string contents){
 	//push the old contents so we may revert
 	revertStack.push(this->contents);
 
 	this->contents = contents;
 }
 
-char* cell::getContents(){
+bool cell::operator==(const cell& c) const {
+    return ((this->contents == c.contents) && (this->cellName == c.cellName));
+}
+
+std::string cell::getContents(){
 	return this->contents;
 }
 
 void cell::revertCell(){
-	char* oldContents = revertStack.top();
+	std::string oldContents = revertStack.top();
 	revertStack.pop();
 
 	this->contents = contents;
-}
-
-bool cell::operator==(const cell& c) const{
-	return ((this->contents == c.contents) && (this->cellName == c.cellName));
 }

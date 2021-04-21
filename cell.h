@@ -3,16 +3,24 @@
 
 #include <stack>
 
-class cell{
-	public:
-		cell(char* contents, char* cellName);
-		void updateContents(char* contents);
-		char* getContents();
-		void revertCell();
-		bool operator==(const cell& c) const;
-	private:
-		std::stack<char*> revertStack;
-		char* cellName;
-		char* contents;
+class cell {
+public:
+    cell();
+
+    cell(std::string contents, std::string cellName);
+
+    void updateContents(std::string contents);
+
+    std::string getContents();
+
+    void revertCell();
+
+    bool operator==(const cell& c) const;
+
+private:
+    std::stack<std::string> revertStack;
+    std::string cellName;
+    std::string contents;
 };
+
 #endif
