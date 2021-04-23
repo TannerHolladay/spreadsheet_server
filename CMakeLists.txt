@@ -20,7 +20,11 @@ enable_testing()
 add_executable(
     tests
     tests.cc
+    cell.cpp
+    client.cpp
+    spreadsheet.cpp
 )
+
 target_link_libraries(
     tests
     gtest_main
