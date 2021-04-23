@@ -50,8 +50,15 @@ void spreadsheet::revert(std::string cellName) {
     undoStack.push(cellState(cellName, oldContents));
 }
 
-void spreadsheet::join(client::pointer newClient) {
-    clients.insert(newClient);
+void spreadsheet::join(client::pointer client) {
+    clients.insert(client);
     std::cout << "Joined spreadsheet" << std::endl;
     // Send spreadsheet information to client
+    client->doRead(); // Starts the loop that processes information from the client
+}
+
+void spreadsheet::disconnect(client::pointer client) {
+    clients.erase(client);
+    std::cout << "Removed from spreadsheet" << std::endl;
+    // Removes the client from this spreadsheet
 }
