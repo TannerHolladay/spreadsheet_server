@@ -58,7 +58,9 @@ void spreadsheet::join(client::pointer client) {
 }
 
 void spreadsheet::disconnect(client::pointer client) {
-    clients.erase(client);
-    std::cout << "Removed from spreadsheet" << std::endl;
+    if (clients.count(client) > 0){
+        clients.erase(client);
+        std::cout << "Removed user from spreadsheet" << std::endl;
+    }
     // Removes the client from this spreadsheet
 }

@@ -134,7 +134,13 @@ void client::setSelectedCell(std::string cellName) {
 
 // Closes the socket
 void client::closeSocket(boost::system::error_code error) {
-    currentSpreadsheet->disconnect(shared_from_this());
+    if (currentSpreadsheet != nullptr) {
+        currentSpreadsheet->disconnect(shared_from_this());
+    }
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
     socket.close();
+}
+
+std::string client::getSelected() {
+    return currentSelectedCell;
 }
