@@ -44,8 +44,8 @@ private:
     };
     char data[max_length];
     std::string buffer;
-
-    struct * deserialize(const std::string JSONMessage);
+    
+    void handleRawRequest(const std::string JSONMessage);
 };
 
 #endif
