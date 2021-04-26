@@ -22,7 +22,8 @@ public:
     std::set<client::pointer> clients;
     static std::map<std::string, spreadsheet*> spreadsheets;
 
-    void join(client::pointer newClient);
+    void join(client::pointer client);
+    void disconnect(client::pointer client);
 
 private:
     std::map<std::string, cell> cells;
