@@ -139,6 +139,11 @@ void client::closeSocket(boost::system::error_code error) {
     }
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
     socket.close();
+
+bool isValidFormula(std::string formula) {
+        
+}
+
 }
 
 std::string client::getSelected() {
