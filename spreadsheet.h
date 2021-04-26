@@ -19,6 +19,10 @@ public:
 
     void revert(std::string cellName);
 
+    void edit (std::string cellName, std::string contents);
+
+    void select(std::string cellName, int clientID, std::string clientName);
+
     std::set<client::pointer> clients;
     static std::map<std::string, spreadsheet*> spreadsheets;
 

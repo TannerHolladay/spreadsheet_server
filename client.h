@@ -29,6 +29,8 @@ public:
     void setSelectedCell(std::string cellName);
     std::string getSelected();
 
+    int ID;
+
 private:
     std::string userName;
 

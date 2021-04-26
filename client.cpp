@@ -132,6 +132,7 @@ spreadsheet* client::getCurrentSpreadsheet() {
 // Set the cell this client is currently selecting
 void client::setSelectedCell(std::string cellName) {
     this->currentSelectedCell = cellName;
+    currentSpreadsheet->select(cellName, ID, userName);
 }
 
 // Closes the socket

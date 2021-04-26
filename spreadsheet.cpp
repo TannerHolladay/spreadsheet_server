@@ -50,6 +50,28 @@ void spreadsheet::revert(std::string cellName) {
     undoStack.push(cellState(cellName, oldContents));
 }
 
+void spreadsheet::edit(std::string cellName, std::string contents) {
+    updateCell(cellName, contents);
+    std::string message = "{ messageType: \"cellUpdated\", cellName: " + cellName + " ,contents: " + contents + "}";
+    for (auto client : spreadsheet::clients){
+        if (client->ID != clientID){
+            client->sendMessage(message);
+        }
+    }
+}
+
+void spreadsheet::select(std::string cellName, int clientID, std::string clientName) {
+    // Update this when we add a JSON parser
+    std::string message = "{ messageType: \"cellSelected\", cellName: " + cellName + ", selector: " + std::to_string(clientID) + ", selectorName: " + clientName + "}";
+    // Send the message to all clients except the one who made the request
+    // clients don't have IDs right now, need to fix this
+    for (auto client: spreadsheet::clients){
+        if (client->ID != clientID){
+            client->sendMessage(message);
+        }
+    }
+}
+
 void spreadsheet::join(client::pointer client) {
     clients.insert(client);
     std::cout << "Joined spreadsheet" << std::endl;
