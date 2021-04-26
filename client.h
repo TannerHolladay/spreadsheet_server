@@ -45,6 +45,8 @@ private:
     };
     char data[max_length];
     std::string buffer;
+    
+    void handleRawRequest(const std::string JSONMessage);
 };
 
 #endif

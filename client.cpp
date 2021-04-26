@@ -2,6 +2,8 @@
 #include <iostream>
 #include "client.h"
 #include "spreadsheet.h"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 client::client(tcp::socket socket) : socket(std::move(socket)) {}
 
@@ -139,6 +141,40 @@ void client::closeSocket(boost::system::error_code error) {
     }
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
     socket.close();
+}
+
+void client::handleRawRequest(const std::string JSONRequest) {
+
+	// Store the string in a stream.
+	std::stringstream stream;
+	stream << JSONRequest;
+
+	// Deserialize stream into a property tree.
+	boost::property_tree::ptree root;
+	boost::property_tree::read_json(stream, root);
+
+	// Get the request type
+	std::string requestType = root.get<std::string>("requestType");
+
+	if(requestType == "editCell") {
+	    std::string cellName = root.get<std::string>("cellName");
+	    std::string cellContents = root.get<std::string>("contents");
+
+	    edit(cellName, cellContents);
+	}
+	else if(requestType == "revertCell") {
+	    std::string cellName = root.get<std::string>("cellName");
+
+	    revert(cellName);
+	}
+	else if(requestType == "selectCell") {
+	    std::string cellName = root.get<std::string>("cellName");
+
+	    select(cellName);
+	}
+	else if(requestType == "undo") {
+	    undo();
+	}
 }
 
 std::string client::getSelected() {
