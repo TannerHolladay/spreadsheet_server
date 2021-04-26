@@ -101,7 +101,7 @@ void client::doRead() {
                 if (!error) {
                     // If no information is received then repeat
                     if (bytes_transferred == 0) {
-                        doHandshake();
+                        doRead();
                         return;
                     }
 
@@ -113,9 +113,13 @@ void client::doRead() {
 
                     // TODO: Handle event loop information here
                     // Maybe combine this method with doHandshake some way? Like an if statement or something else?
+                    if (!buffer.empty() &&
+                        !std::all_of(buffer.begin(), buffer.end(), [](char c) { return std::isspace(c); })) {
+                        handleRawRequest(buffer);
+                    }
 
                     buffer = ""; // Resets the buffer to be able to add more information
-                    doHandshake();
+                    doRead();
                 } else {
                     // Closes the socket connection if any errors happened when connecting
                     closeSocket(error);
@@ -124,15 +128,10 @@ void client::doRead() {
     );
 }
 
+// UNUSED, do we need this?
 // Get the spreadsheet that the client is connected to
 spreadsheet* client::getCurrentSpreadsheet() {
     return this->currentSpreadsheet;
-}
-
-// Set the cell this client is currently selecting
-void client::setSelectedCell(std::string cellName) {
-    this->currentSelectedCell = cellName;
-    currentSpreadsheet->select(cellName, ID, userName);
 }
 
 // Closes the socket
@@ -145,39 +144,46 @@ void client::closeSocket(boost::system::error_code error) {
 }
 
 void client::handleRawRequest(const std::string JSONRequest) {
+    
+    // Store the string in a stream.
+    std::stringstream stream;
+    stream << JSONRequest;
 
-	// Store the string in a stream.
-	std::stringstream stream;
-	stream << JSONRequest;
+    // Deserialize stream into a property tree.
+    boost::property_tree::ptree root;
+    boost::property_tree::read_json(stream, root);
 
-	// Deserialize stream into a property tree.
-	boost::property_tree::ptree root;
-	boost::property_tree::read_json(stream, root);
 
-	// Get the request type
+    // Get the request type
 	std::string requestType = root.get<std::string>("requestType");
-
 	if(requestType == "editCell") {
 	    std::string cellName = root.get<std::string>("cellName");
 	    std::string cellContents = root.get<std::string>("contents");
-
-	    edit(cellName, cellContents);
+	    if (getSelected() == cellName) {
+            currentSpreadsheet->edit(cellName, cellContents);
+        }
 	}
 	else if(requestType == "revertCell") {
 	    std::string cellName = root.get<std::string>("cellName");
-
-	    revert(cellName);
+        currentSpreadsheet->revert(cellName);
 	}
 	else if(requestType == "selectCell") {
 	    std::string cellName = root.get<std::string>("cellName");
-
-	    select(cellName);
+	    currentSpreadsheet->select(cellName, shared_from_this());
 	}
 	else if(requestType == "undo") {
-	    undo();
+	    currentSpreadsheet->undo();
 	}
 }
 
 std::string client::getSelected() {
     return currentSelectedCell;
+}
+
+void client::setSelectedCell(std::string cellName) {
+    this->currentSelectedCell = cellName;
+}
+
+std::string client::getClientName() {
+    return userName;
 }

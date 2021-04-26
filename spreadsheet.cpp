@@ -54,19 +54,18 @@ void spreadsheet::edit(std::string cellName, std::string contents) {
     updateCell(cellName, contents);
     std::string message = "{ messageType: \"cellUpdated\", cellName: " + cellName + " ,contents: " + contents + "}";
     for (auto client : spreadsheet::clients){
-        if (client->ID != clientID){
-            client->sendMessage(message);
-        }
+        client->sendMessage(message);
     }
 }
 
-void spreadsheet::select(std::string cellName, int clientID, std::string clientName) {
+void spreadsheet::select(std::string cellName, client::pointer currentClient) {
+    currentClient->setSelectedCell(cellName);
     // Update this when we add a JSON parser
-    std::string message = "{ messageType: \"cellSelected\", cellName: " + cellName + ", selector: " + std::to_string(clientID) + ", selectorName: " + clientName + "}";
+    std::string message = "{ messageType: \"cellSelected\", cellName: " + cellName + ", selector: " + std::to_string(currentClient->ID) + ", selectorName: " + currentClient->getClientName() + "}";
     // Send the message to all clients except the one who made the request
     // clients don't have IDs right now, need to fix this
     for (auto client: spreadsheet::clients){
-        if (client->ID != clientID){
+        if (client->ID != currentClient->ID){
             client->sendMessage(message);
         }
     }

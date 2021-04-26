@@ -27,6 +27,9 @@ public:
     spreadsheet* getCurrentSpreadsheet();
 
     void setSelectedCell(std::string cellName);
+
+    std::string getClientName();
+
     std::string getSelected();
 
     int ID;
