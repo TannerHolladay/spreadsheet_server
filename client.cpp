@@ -137,4 +137,9 @@ void client::closeSocket(boost::system::error_code error) {
     currentSpreadsheet->disconnect(shared_from_this());
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
     socket.close();
+
+bool isValidFormula(std::string formula) {
+        
+}
+
 }

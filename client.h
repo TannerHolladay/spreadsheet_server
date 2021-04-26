@@ -44,6 +44,8 @@ private:
     };
     char data[max_length];
     std::string buffer;
+
+    bool isValidFormula(std::string formula);
 };
 
 #endif
