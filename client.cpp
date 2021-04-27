@@ -4,8 +4,16 @@
 #include "spreadsheet.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <nlohmann/json.hpp>
 
-client::client(tcp::socket socket) : socket(std::move(socket)) {}
+using nlohmann::json;
+
+int client::clientCount = 0;
+
+client::client(tcp::socket socket) : socket(std::move(socket)) {
+    ID = clientCount;
+    clientCount++;
+}
 
 client::~client() {
     socket.close();
@@ -50,10 +58,10 @@ void client::doHandshake() {
                                      it != spreadsheet::spreadsheets.end(); it++) {
                                     message += it->first + "\n";
                                 }
-                                sendMessage(message + "\n");
+                                sendMessage(message);
                             } else {
                                 // Sends two new line characters to indicate there are no created spreadsheets
-                                sendMessage("\n\n");
+                                sendMessage("\n");
                             }
                         } else {
                             // Creates a new spreadsheet if it does not exist
@@ -83,7 +91,7 @@ void client::sendMessage(const std::string& message) {
     auto self(shared_from_this());
     boost::asio::async_write(
             socket,
-            boost::asio::buffer(message.c_str(), message.size()),
+            boost::asio::buffer(message + "\n", message.size() + 1),
             [this, self](boost::system::error_code error, std::size_t) {
                 if (error) {
                     closeSocket(error);
@@ -143,37 +151,27 @@ void client::closeSocket(boost::system::error_code error) {
     socket.close();
 }
 
-void client::handleRawRequest(const std::string JSONRequest) {
-    
-    // Store the string in a stream.
-    std::stringstream stream;
-    stream << JSONRequest;
-
-    // Deserialize stream into a property tree.
-    boost::property_tree::ptree root;
-    boost::property_tree::read_json(stream, root);
-
-
+void client::handleRawRequest(const std::string request) {
     // Get the request type
-	std::string requestType = root.get<std::string>("requestType");
-	if(requestType == "editCell") {
-	    std::string cellName = root.get<std::string>("cellName");
-	    std::string cellContents = root.get<std::string>("contents");
-	    if (getSelected() == cellName) {
-            currentSpreadsheet->edit(cellName, cellContents);
+    json jsonRequest = json::parse(request, nullptr, false);
+    if (jsonRequest.is_discarded()) return;
+
+    std::string requestType = jsonRequest["requestType"];
+    if (requestType == "editCell") {
+        std::string cellName = jsonRequest["cellName"];
+        std::string cellContents = jsonRequest["contents"];
+        if (getSelected() == cellName) {
+            currentSpreadsheet->edit(cellName, cellContents, true);
         }
-	}
-	else if(requestType == "revertCell") {
-	    std::string cellName = root.get<std::string>("cellName");
+    } else if (requestType == "revertCell") {
+        std::string cellName = jsonRequest["cellName"];
         currentSpreadsheet->revert(cellName);
-	}
-	else if(requestType == "selectCell") {
-	    std::string cellName = root.get<std::string>("cellName");
-	    currentSpreadsheet->select(cellName, shared_from_this());
-	}
-	else if(requestType == "undo") {
-	    currentSpreadsheet->undo();
-	}
+    } else if (requestType == "selectCell") {
+        std::string cellName = jsonRequest["cellName"];
+        currentSpreadsheet->select(cellName, shared_from_this());
+    } else if (requestType == "undo") {
+        currentSpreadsheet->undo();
+    }
 }
 
 std::string client::getSelected() {

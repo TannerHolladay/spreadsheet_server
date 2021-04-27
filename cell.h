@@ -13,7 +13,8 @@ public:
 
     std::string getContents();
 
-    void revertCell();
+    std::string revert();
+    bool canRevert();
 
     bool operator==(const cell& c) const;
 

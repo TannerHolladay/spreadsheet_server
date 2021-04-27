@@ -35,6 +35,8 @@ public:
     int ID;
 
 private:
+    static int clientCount;
+
     std::string userName;
 
     //currentSpreadsheet - string containing the name of the spreadsheet the client is connected to
@@ -51,7 +53,7 @@ private:
     char data[max_length];
     std::string buffer;
     
-    void handleRawRequest(const std::string JSONMessage);
+    void handleRawRequest(const std::string request);
 };
 
 #endif
