@@ -149,6 +149,8 @@ void client::closeSocket(boost::system::error_code error) {
     }
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
     socket.close();
+
+    std::cout << "Socket closed" << std::endl;
 }
 
 void client::handleRawRequest(const std::string request) {
