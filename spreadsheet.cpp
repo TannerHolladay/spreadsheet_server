@@ -82,7 +82,7 @@ void spreadsheet::join(client::pointer client) {
     client->doRead(); // Starts the loop that processes information from the client
 }
 
-void spreadsheet::serverShutdown(){
+void spreadsheet::serverShutdown(std::string message) {
     json jsonMessage = {
             {"messageType", "serverError"},
             {"serverError", message}
