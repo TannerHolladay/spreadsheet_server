@@ -92,6 +92,15 @@ void spreadsheet::serverShutdown(std::string message) {
     }
 }
 
+void spreadsheet::clientDisconnected(int id)
+{
+    json jsonMessage = {
+            {"messageType", "disconnected"},
+            {"user", id}
+    };
+    sendMessageToOthers(jsonMessage.dump(), id);
+}
+
 bool cmp(std::pair<std::string, cell>& a, std::pair<std::string, cell>& b)
 {
     return a.first.substr(1, a.first.length()) < b.first.substr(1, b.first.length()) || a.first < b.first;

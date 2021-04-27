@@ -150,6 +150,8 @@ void client::closeSocket(boost::system::error_code error) {
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
     socket.close();
 
+    currentSpreadsheet->clientDisconnected(ID);
+
     std::cout << "Socket closed" << std::endl;
 }
 
