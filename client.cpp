@@ -145,12 +145,127 @@ void client::closeSocket(boost::system::error_code error) {
     socket.close();
 }
 
-bool client::isValidFormula(std::string formula) {
+std::vector<std::string> client::tokenize(std::string expression, std::regex rgx){
+    std::smatch matches;
+    std::vector<std::string> tokenizedStrings;
+    std::regex rgxEmptyOrWhite("(^$|\\s+)");
+    while(std::regex_search(expression, matches, rgx)){
 
+        if(!regex_match(matches.str(1), rgxEmptyOrWhite)) {
+            // Push match to list
+            tokenizedStrings.push_back(matches.str(1));
+            // Eliminate the previous match and create a new string to search
+            expression = matches.suffix().str();
+        }
+    }
+
+    return tokenizedStrings;
 }
 
-std::vector<std::string> tokenize(std::string expression, std::regex rgx){
+bool client::isValidFormula(std::string formula) {
+    std::vector<std::string> tokens;
 
+    std::regex rgx("([0-9]+(\\.[0-9]+)?|[a-zA-Z]+[0-9]+|[\\(\\)\\+\\-\\*/])");
+    std::regex rgxDouble("([0-9]+(\\.[0-9]+)?)");
+    std::regex rgxValue("([a-zA-Z]+[0-9]+)");
+    std::regex rgxAddSubtract("([\\+\\-])");
+    std::regex rgxMultiplyDivide("([\\*/])");
+    std::regex rgxLeftParen("(\\()");
+    std::regex rgxRightParen("(\\))");
+    std::regex rgxWhitespace("(\\s+)");
+
+    tokens = tokenize(formula, rgx);
+
+
+    std::stack<std::string> ops;
+    std::stack<double> vals;
+
+    bool isValid = false;
+
+    for(int tokenIndex = 0; tokenIndex < tokens.size(); tokenIndex++) {
+
+        std::string token = tokens[tokenIndex];
+
+        std::string topOperator = !ops.empty() ? ops.top() : "";
+
+        if(std::regex_match(token, rgxDouble)) {
+            if(topOperator == "*" || topOperator == "/") {
+                vals.pop();
+                ops.pop();
+            }
+
+            vals.push(0);
+        }
+        else if(std::regex_match(token, rgxValue)) {
+            if(topOperator == "*" || topOperator == "/") {
+                vals.pop();
+                ops.pop();
+            }
+
+            vals.push(0);
+        }
+        else if(std::regex_match(token, rgxAddSubtract)) {
+            if(topOperator == "+" || topOperator == "-") {
+                vals.pop();
+                vals.pop();
+                ops.pop();
+                vals.push(0);
+            }
+            ops.push(token);
+        }
+        else if(std::regex_match(token, rgxMultiplyDivide)) {
+            ops.push(token);
+        }
+        else if(std::regex_match(token, rgxLeftParen)) {
+            ops.push(token);
+        }
+        else if(std::regex_match(token, rgxRightParen)) {
+            if(topOperator == "+" || topOperator == "-") {
+                vals.pop();
+                vals.pop();
+                ops.pop();
+                vals.push(0);
+            }
+
+            topOperator = !ops.empty() ? ops.top() : "";
+
+            if(topOperator == "(") {
+                ops.pop();
+            }
+            else {
+                throw "Missing Parenthesis.";
+            }
+
+            topOperator = !ops.empty() ? ops.top() : "";
+
+            if(topOperator == "*" || topOperator == "/") {
+                vals.pop();
+                vals.pop();
+                ops.pop();
+                vals.push(0);
+            }
+        }
+        else if(std::regex_match(token, rgxWhitespace)) {
+            throw "This expression has an unknown token: " + token + ".";
+        }
+
+    }
+    if(ops.empty()) {
+        if(vals.size() == 1) {
+            isValid = true;
+        }
+        else {
+            throw "Invalid expression.";
+        }
+    }
+    else if(vals.size() == 2) {
+        isValid = true;
+    }
+    else {
+        throw "An extra operator was given in the expression.";
+    }
+
+    return isValid;
 }
 
 std::string client::getSelected() {
