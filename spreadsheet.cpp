@@ -85,7 +85,7 @@ void spreadsheet::join(client::pointer client) {
 void spreadsheet::serverShutdown(std::string message) {
     json jsonMessage = {
             {"messageType", "serverError"},
-            {"serverError", message}
+            {"message", message}
     };
     for (auto sheet: spreadsheet::spreadsheets) {
         sheet.second->sendMessage(jsonMessage.dump());
