@@ -3,6 +3,7 @@
 
 #include <boost/asio.hpp>
 #include <memory>
+#include <regex>
 
 using boost::asio::ip::tcp;
 
@@ -47,6 +48,8 @@ private:
     std::string buffer;
 
     bool isValidFormula(std::string formula);
+
+    std::vector<std::string> tokenize(std::string expression, std::regex rgx);
 };
 
 #endif

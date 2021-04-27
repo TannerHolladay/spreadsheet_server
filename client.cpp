@@ -2,6 +2,10 @@
 #include <iostream>
 #include "client.h"
 #include "spreadsheet.h"
+#include <stack>
+#include <regex>
+#include <string>
+#include <cstdlib>
 
 client::client(tcp::socket socket) : socket(std::move(socket)) {}
 
@@ -139,10 +143,13 @@ void client::closeSocket(boost::system::error_code error) {
     }
     socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
     socket.close();
-
-bool isValidFormula(std::string formula) {
-        
 }
+
+bool client::isValidFormula(std::string formula) {
+
+}
+
+std::vector<std::string> tokenize(std::string expression, std::regex rgx){
 
 }
 
