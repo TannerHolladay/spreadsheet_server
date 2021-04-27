@@ -83,12 +83,13 @@ void spreadsheet::join(client::pointer client) {
 }
 
 void spreadsheet::serverShutdown(){
-    for(auto sheet: spreadsheet::spreadsheets){
-        for(auto client : sheet.second->clients){
-            sheet.second->disconnect(client);
-        }
+    json jsonMessage = {
+            {"messageType", "serverError"},
+            {"serverError", message}
+    };
+    for (auto sheet: spreadsheet::spreadsheets) {
+        sheet.second->sendMessage(jsonMessage.dump());
     }
-
 }
 
 bool cmp(std::pair<std::string, cell>& a, std::pair<std::string, cell>& b)
@@ -120,8 +121,6 @@ void spreadsheet::saveToFile(){
         }
     }
 }
-
-
 
 void spreadsheet::disconnect(client::pointer client) {
     if (clients.count(client) > 0) {

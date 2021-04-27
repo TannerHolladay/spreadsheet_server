@@ -13,7 +13,7 @@ class spreadsheet {
 public:
     spreadsheet();
 
-    static void serverShutdown();
+    static void serverShutdown(std::string message);
 
     static void saveToFile();
 

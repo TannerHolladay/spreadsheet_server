@@ -43,14 +43,14 @@ int main() {
     try {
         std::thread t{
             [] {
-                std::string s;
-                while (std::cin >> s)
-                    if (s == "stop" || s == "Stop")
+                std::string input;
+                while (std::cin >> input)
+                    if (input == "stop" || input == "Stop")
                     {
                         std::cout << "stop command given\n";
                         //TODO SAVE SPREADSHEETS
                         spreadsheet::saveToFile();
-                        spreadsheet::serverShutdown();
+                        spreadsheet::serverShutdown("Shutting down the server");
                         exit(0);
                     }
             }
@@ -63,6 +63,7 @@ int main() {
     }
     catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
+        spreadsheet::serverShutdown("Server is shutting down due to an error");
     }
 
     return 0;
