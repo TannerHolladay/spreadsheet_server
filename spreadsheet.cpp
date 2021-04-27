@@ -81,10 +81,22 @@ void spreadsheet::join(client::pointer client) {
     client->doRead(); // Starts the loop that processes information from the client
 }
 
+void spreadsheet::serverShutdown(){
+    std::_Rb_tree_const_iterator<std::pair<const std::string, spreadsheet*>> iterator = spreadsheet::spreadsheets.cbegin();
+
+    for(iterator = spreadsheet::spreadsheets.begin(); iterator != spreadsheet::spreadsheets.end(); iterator++){
+        for(client::pointer client : iterator->second->clients){
+            iterator->second->disconnect(client);
+        }
+    }
+
+}
+
+
 void spreadsheet::disconnect(client::pointer client) {
     if (clients.count(client) > 0) {
         clients.erase(client);
-        std::cout << "Removed user from spreadsheet" << std::endl;
+        std::cout << "Removed user: " + client->getClientName() + " from spreadsheet" << std::endl;
     }
     // Removes the client from this spreadsheet
 }
