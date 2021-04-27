@@ -28,9 +28,16 @@ public:
     spreadsheet* getCurrentSpreadsheet();
 
     void setSelectedCell(std::string cellName);
+
+    std::string getClientName();
+
     std::string getSelected();
 
+    int ID;
+
 private:
+    static int clientCount;
+
     std::string userName;
 
     //currentSpreadsheet - string containing the name of the spreadsheet the client is connected to
@@ -50,6 +57,8 @@ private:
     bool isValidFormula(std::string formula);
 
     std::vector<std::string> tokenize(std::string expression, std::regex rgx);
+    
+    void handleRawRequest(const std::string request);
 };
 
 #endif

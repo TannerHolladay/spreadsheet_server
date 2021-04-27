@@ -6,6 +6,8 @@
 #include <string>
 #include <boost/asio.hpp>
 #include "client.h"
+#include "spreadsheet.h"
+#include <thread>
 
 using boost::asio::ip::tcp;
 
@@ -39,12 +41,29 @@ private:
 
 int main() {
     try {
+        std::thread t{
+            [] {
+                std::string input;
+                while (std::cin >> input)
+                    if (input == "stop" || input == "Stop")
+                    {
+                        std::cout << "stop command given\n";
+                        //TODO SAVE SPREADSHEETS
+                        spreadsheet::saveToFile();
+                        spreadsheet::serverShutdown("Shutting down the server");
+                        exit(0);
+                    }
+            }
+        };
+        t.detach();
+
         boost::asio::io_context io_context;
         tcp_server server(io_context);
         io_context.run();
     }
     catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
+        spreadsheet::serverShutdown("Server is shutting down due to an error");
     }
 
     return 0;

@@ -11,19 +11,32 @@ typedef std::pair<std::string, std::string> cellState;
 
 class spreadsheet {
 public:
-    spreadsheet(std::string spreadsheetName);
+    spreadsheet();
 
-    void updateCell(std::string cellName, std::string contents);
+    static void serverShutdown(std::string message);
+
+    static void saveToFile();
 
     void undo();
 
     void revert(std::string cellName);
 
-    std::set<client::pointer> clients;
-    static std::map<std::string, spreadsheet*> spreadsheets;
+    void edit(std::string cellName, std::string contents, bool canUndo);
+
+    void select(std::string cellName, client::pointer currentClient);
+
+    void sendMessage(std::string message);
+
+    void sendMessageToOthers(std::string message, int id);
 
     void join(client::pointer client);
+
     void disconnect(client::pointer client);
+
+    void clientDisconnected(int id);
+
+    std::set<client::pointer> clients;
+    static std::map<std::string, spreadsheet*> spreadsheets;
 
 private:
     std::map<std::string, cell> cells;
