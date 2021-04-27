@@ -92,32 +92,34 @@ void spreadsheet::serverShutdown(std::string message) {
     }
 }
 
-bool cmp(std::pair<std::string, cell>& a, std::pair<std::string, cell>& b)
-{
+bool cmp(std::pair<std::string, cell>& a, std::pair<std::string, cell>& b) {
     return a.first.substr(1, a.first.length()) < b.first.substr(1, b.first.length()) || a.first < b.first;
 }
 
 //Saves every cell to a file
-void spreadsheet::saveToFile(){
+void spreadsheet::saveToFile() {
     std::ofstream ssFile;
-    ssFile.open("ServerSpreadsheets.txt");
     std::cout << "saving..." << std::endl;
 
     //loop through spreadsheets
-    for(const auto& sheet: spreadsheet::spreadsheets){
+    for (const auto& sheet: spreadsheet::spreadsheets) {
+        ssFile.open(sheet.first + ".csv");
         //adds spreadsheet name to file
         //ssFile << sheet->second->spreadsheetName << "\n";
         //loop through cells in each spreadsheet
-        std::vector<std::pair<std::string, cell> > sortedCells;
-        for (auto& it : sheet.second->cells) {
-            sortedCells.push_back(it);
+        std::map<int, std::map<int, std::string>> vect;
+
+        for (const auto& cell: sheet.second->cells) {
+            int col = stoi(cell.first.substr(1, cell.first.length()));
+            int row = int(cell.first[0]) - 65;
+            vect[col][row] = cell.second.getContents();
         }
-        sort(sortedCells.begin(), sortedCells.end(), cmp);
-
-        for(const auto& cell: sortedCells){
-           // ssFile << cell.second.getContents();
-            std::cout << cell.first << std::endl;
-
+        std::string output;
+        for (int x = 0; x < vect.size(); ++x) {
+            for (int y = 0; y < vect[x].size(); ++y) {
+                ssFile << vect[x][y] << ",";
+            }
+            ssFile << std::endl;
         }
     }
 }
