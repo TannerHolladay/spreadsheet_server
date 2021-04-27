@@ -49,6 +49,7 @@ int main() {
                     {
                         std::cout << "stop command given\n";
                         //TODO SAVE SPREADSHEETS
+                        spreadsheet::saveToFile();
                         spreadsheet::serverShutdown();
                         exit(0);
                     }
