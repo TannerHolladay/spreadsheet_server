@@ -13,6 +13,8 @@ class spreadsheet {
 public:
     spreadsheet(std::string spreadsheetName);
 
+    static void serverShutdown();
+
     void updateCell(std::string cellName, std::string contents);
 
     void undo();
