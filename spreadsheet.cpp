@@ -1,6 +1,7 @@
 #include "spreadsheet.h"
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <nlohmann/json.hpp>
 
 using nlohmann::json;
@@ -82,15 +83,44 @@ void spreadsheet::join(client::pointer client) {
 }
 
 void spreadsheet::serverShutdown(){
-    std::_Rb_tree_const_iterator<std::pair<const std::string, spreadsheet*>> iterator = spreadsheet::spreadsheets.cbegin();
-
-    for(iterator = spreadsheet::spreadsheets.begin(); iterator != spreadsheet::spreadsheets.end(); iterator++){
-        for(client::pointer client : iterator->second->clients){
-            iterator->second->disconnect(client);
+    for(auto sheet: spreadsheet::spreadsheets){
+        for(auto client : sheet.second->clients){
+            sheet.second->disconnect(client);
         }
     }
 
 }
+
+bool cmp(std::pair<std::string, cell>& a, std::pair<std::string, cell>& b)
+{
+    return a.first.substr(1, a.first.length()) < b.first.substr(1, b.first.length()) || a.first < b.first;
+}
+
+//Saves every cell to a file
+void spreadsheet::saveToFile(){
+    std::ofstream ssFile;
+    ssFile.open("ServerSpreadsheets.txt");
+    std::cout << "saving..." << std::endl;
+
+    //loop through spreadsheets
+    for(const auto& sheet: spreadsheet::spreadsheets){
+        //adds spreadsheet name to file
+        //ssFile << sheet->second->spreadsheetName << "\n";
+        //loop through cells in each spreadsheet
+        std::vector<std::pair<std::string, cell> > sortedCells;
+        for (auto& it : sheet.second->cells) {
+            sortedCells.push_back(it);
+        }
+        sort(sortedCells.begin(), sortedCells.end(), cmp);
+
+        for(const auto& cell: sortedCells){
+           // ssFile << cell.second.getContents();
+            std::cout << cell.first << std::endl;
+
+        }
+    }
+}
+
 
 
 void spreadsheet::disconnect(client::pointer client) {

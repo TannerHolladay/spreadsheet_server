@@ -15,6 +15,8 @@ public:
 
     static void serverShutdown();
 
+    static void saveToFile();
+
     void undo();
 
     void revert(std::string cellName);
