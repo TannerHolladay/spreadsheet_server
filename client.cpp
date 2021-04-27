@@ -66,7 +66,7 @@ void client::doHandshake() {
                         } else {
                             // Creates a new spreadsheet if it does not exist
                             if (spreadsheet::spreadsheets.count(buffer) == 0) {
-                                spreadsheet::spreadsheets[buffer] = new spreadsheet(buffer);
+                                spreadsheet::spreadsheets[buffer] = new spreadsheet();
                                 std::cout << "Created new spreadsheet: " << buffer << std::endl;
                             }
                             // Join the spreadsheet
