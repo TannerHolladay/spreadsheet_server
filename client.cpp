@@ -145,10 +145,19 @@ void client::closeSocket(boost::system::error_code error) {
     socket.close();
 }
 
+/* Tokenize: Creates a vector of tokens from an expression/formula.
+ *
+ * Param1:    string - The expression to be tokenized.
+ * Param2:    regex  - The regular expression to match tokens.
+ *
+ * Returns:   vecotr - A vector containing tokens. 
+ */
 std::vector<std::string> client::tokenize(std::string expression, std::regex rgx){
     std::smatch matches;
     std::vector<std::string> tokenizedStrings;
     std::regex rgxEmptyOrWhite("(^$|\\s+)");
+
+    // Search the expression for a token. When found, remove and search again.
     while(std::regex_search(expression, matches, rgx)){
 
         if(!regex_match(matches.str(1), rgxEmptyOrWhite)) {
@@ -162,10 +171,19 @@ std::vector<std::string> client::tokenize(std::string expression, std::regex rgx
     return tokenizedStrings;
 }
 
+/* isValidFormula: Determines wheather a mathematical formula is syntactically correct.
+ * Example: 
+ *     (1+1) //true
+ *     (1    //false
+ * 
+ * Param:    string - The formula to be validated.
+ *
+ * Returns:  bool   - True if valid. False if invalid.
+ */
 bool client::isValidFormula(std::string formula) {
     std::vector<std::string> tokens;
 
-    std::regex rgx("([0-9]+(\\.[0-9]+)?|[a-zA-Z]+[0-9]+|[\\(\\)\\+\\-\\*/])");
+    std::regex rgxTokens("([0-9]+(\\.[0-9]+)?|[a-zA-Z]+[0-9]+|[\\(\\)\\+\\-\\*/])");
     std::regex rgxDouble("([0-9]+(\\.[0-9]+)?)");
     std::regex rgxValue("([a-zA-Z]+[0-9]+)");
     std::regex rgxAddSubtract("([\\+\\-])");
@@ -174,7 +192,7 @@ bool client::isValidFormula(std::string formula) {
     std::regex rgxRightParen("(\\))");
     std::regex rgxWhitespace("(\\s+)");
 
-    tokens = tokenize(formula, rgx);
+    tokens = tokenize(formula, rgxTokens);
 
 
     std::stack<std::string> ops;
@@ -187,7 +205,8 @@ bool client::isValidFormula(std::string formula) {
         std::string token = tokens[tokenIndex];
 
         std::string topOperator = !ops.empty() ? ops.top() : "";
-
+	
+	// Logic for double tokens
         if(std::regex_match(token, rgxDouble)) {
             if(topOperator == "*" || topOperator == "/") {
                 vals.pop();
@@ -196,6 +215,7 @@ bool client::isValidFormula(std::string formula) {
 
             vals.push(0);
         }
+	// Logic for values/variables like A1, BBX23 etc.
         else if(std::regex_match(token, rgxValue)) {
             if(topOperator == "*" || topOperator == "/") {
                 vals.pop();
@@ -204,6 +224,7 @@ bool client::isValidFormula(std::string formula) {
 
             vals.push(0);
         }
+	// Logic for addition and subtraction tokens
         else if(std::regex_match(token, rgxAddSubtract)) {
             if(topOperator == "+" || topOperator == "-") {
                 vals.pop();
@@ -213,12 +234,15 @@ bool client::isValidFormula(std::string formula) {
             }
             ops.push(token);
         }
+	// Logic for multiply and divide tokens
         else if(std::regex_match(token, rgxMultiplyDivide)) {
             ops.push(token);
         }
+	// Logic for left parenthesis token
         else if(std::regex_match(token, rgxLeftParen)) {
             ops.push(token);
         }
+	// Logic for right parenthesis token
         else if(std::regex_match(token, rgxRightParen)) {
             if(topOperator == "+" || topOperator == "-") {
                 vals.pop();
@@ -250,6 +274,7 @@ bool client::isValidFormula(std::string formula) {
         }
 
     }
+    // If the operators are empty there should be a final value on the value stack.
     if(ops.empty()) {
         if(vals.size() == 1) {
             isValid = true;
@@ -258,6 +283,8 @@ bool client::isValidFormula(std::string formula) {
             throw "Invalid expression.";
         }
     }
+    // If there are two values left and the operator stack is not empty 
+    // then there is one operator left and it's a valid expression.
     else if(vals.size() == 2) {
         isValid = true;
     }
