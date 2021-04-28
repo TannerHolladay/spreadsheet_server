@@ -33,3 +33,9 @@
 
 # Jetbrains
 .idea
+
+# Ignores the saves folder
+saves
+
+# Ignores the out log file
+out.txt
