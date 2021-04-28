@@ -9,6 +9,7 @@ using nlohmann::json;
 std::map<std::string, spreadsheet*> spreadsheet::spreadsheets = std::map<std::string, spreadsheet*>();
 
 spreadsheet::spreadsheet() {
+
 }
 
 void spreadsheet::undo(client::pointer currentClient) {
@@ -22,7 +23,16 @@ void spreadsheet::revert(std::string cellName, client::pointer currentClient) {
     // If cell hasn't been changed return
     if (cells.count(cellName) == 0 || !cells[cellName].canRevert()) return;
 
+    undoStack.push(cellState(cellName, cells[cellName].getContents()));
+
     std::string newContents = cells[cellName].revert();
+
+    //if we have a cycle, rollback
+    if(checkCircularDependencies(cellName)){
+        undo();
+        return;
+    }
+
     json message = {
             {"messageType", "cellUpdated"},
             {"cellName",    cellName},
@@ -170,6 +180,7 @@ void spreadsheet::sendMessageToOthers(std::string message, int id) {
         }
     }
 }
+
 
 /* isValidFormula: Determines whether a mathematical formula is syntactically correct.
  * Example:
@@ -324,4 +335,102 @@ std::vector<std::string> spreadsheet::tokenize(std::string expression, std::rege
     }
 
     return tokenizedStrings;
+}
+
+///  Determines if a circular dependency exists
+/// \param cellName CellName to determine if a circular dependency exists. Example: "A4"
+/// \return True if circular dependency, False if no circular dependency
+bool spreadsheet::checkCircularDependencies(std::string cellName)
+{
+    // Recursively search for a circular dependency
+    std::set<std::string> *visited = new std::set<std::string>();
+    visit(cellName, cellName, visited);
+    return true; // false = 0, true = 1
+}
+
+///
+/// \param originalCellName Cell who we are searching if a circular dependency exists.
+/// \param currentCellName Current cell that will have its contents checked
+/// \param visited Set of seen cells
+/// \return
+bool spreadsheet::visit(std::string originalCellName, std::string currentCellName, std::set<std::string> *visited)
+{
+    std::cout << "Inside visit " << std::endl;
+    std::set<std::string> *visited_set = visited;
+    // Check in the current cell as visited
+    visited_set->insert(currentCellName);
+    // Get current cell's direct dependents
+    std::vector<std::string> directDependents = getDirectDependents(currentCellName);
+    // Iterate over every direct dependent
+    for(int i = 0; i < directDependents.size(); i++)
+    {
+        // If a circular exception was found
+        std::string cell = directDependents[i];
+        if (cell==originalCellName)
+        {
+            return true;
+        }
+            // If dependent has not been visited yet
+        else if(visited_set->find(directDependents[i]) != visited->end())
+        {
+            // continue recursively searching for every dependent
+            visit(originalCellName, directDependents[i], visited_set);
+        }
+    }
+    // If no circular exception was found then return false
+    return false;
+}
+
+
+/// Gets tokens from cell contents
+/// An example:
+/// Contents: "A4 + A16 + 1"
+/// Tokens: ["A4", "A16", "1"]
+/// \param cellName CellName from where contents will be extracted
+/// \return A vector containing all tokens.
+std::vector<std::string> spreadsheet::getTokens(std::string cellName)
+{
+    std::string cellContents = cells[cellName].getContents();
+    std::cout << "Inside get tokens" << std::endl;
+    std::vector<std::string> tokens = std::vector<std::string>();
+    std::regex regSplit("(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
+    //Split cellContents into tokens
+    std::vector<std::string> tokens_vector =
+            {
+                    std::sregex_token_iterator(cellContents.begin(), cellContents.end(), regSplit, -1),
+                    std::sregex_token_iterator()
+            };
+
+    // Remove whitespaces from tokens
+    for (int i = 0; i < tokens_vector.size(); i++)
+    {
+        std::string trimmed_token = tokens_vector[i];
+        trimmed_token.erase(remove(trimmed_token.begin(), trimmed_token.end(), ' '), trimmed_token.end());
+        tokens_vector[i] = trimmed_token;
+    }
+    return tokens_vector;
+}
+
+
+/// Gets direct dependents from cell contents
+/// \param cellName
+/// \return A vector containing all of the cell dependents
+std::vector<std::string> spreadsheet::getDirectDependents(std::string cellName)
+{
+    std::cout << "Inside directDependents " << std::endl;
+    std::vector<std::string> directDependents = std::vector<std::string>();
+    // Turn cellName into tokens
+    std::vector<std::string> tokens = getTokens(cellName);
+    std::regex reg("^[a-zA-Z]+[0-9]+$");
+    //  Check which tokens are cellNames and add to directDependents
+    std::smatch matches;
+    for (int i = 0; i < tokens.size(); i++)
+    {
+        // If current token is a cellName
+        if (std::regex_search(tokens[i], matches, reg))
+        {
+            directDependents.push_back(tokens[i]);
+        }
+    }
+    return directDependents;
 }
