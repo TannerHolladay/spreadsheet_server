@@ -39,15 +39,22 @@ bool cell::canRevert() {
 std::vector<std::string> cell::getContentVariables() {
     contentVariables = std::vector<std::string>();
     std::vector<std::string> tokens;
+
+    std::regex rgxTokens("([0-9]+(\\.[0-9]+)?|[a-zA-Z]+[0-9]+|[\\(\\)\\+\\-\\*/])");
     std::regex rgxVariable("([a-zA-Z]+[0-9]+)");
 
     tokens = tokenize(contents, rgxVariable);
 
     for (int tokenIndex = 0; tokenIndex < tokens.size(); tokenIndex++) {
         std::string token = tokens[tokenIndex];
-        if (std::find(contentVariables.begin(), contentVariables.end(), rgxVariable) == contentVariables.end()) {
-            contentVariables.push_back(token);
-        }
+        //if (std::regex_match(token, rgxVariable)) {
+            auto it = std::find(contentVariables.begin(), contentVariables.end(), token);
+            if (it != contentVariables.end()) {
+                // Element exists, do nothing
+            } else {
+                contentVariables.push_back(token);
+            }
+        //}
     }
     return contentVariables;
 }

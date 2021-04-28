@@ -130,7 +130,6 @@ void graph::replaceDependees(std::string s, std::vector<std::string> newDependee
         addDependency(newKey, s);
     }
 }
-}
 
 bool graph::hasDependents(std::string s) {
     return(containsKey(dependents, s));
