@@ -11,7 +11,7 @@ public:
 
     void updateContents(std::string contents);
 
-    std::string getContents();
+    std::string getContents() const;
 
     std::string revert();
     bool canRevert();

@@ -19,6 +19,7 @@ public:
     // Constructor for the tcp server that starts the method to accept connections
     tcp_server(boost::asio::io_context& io_context) : acceptor(io_context, tcp::endpoint(tcp::v4(), PORT)) {
         std::cout << "Server Started" << std::endl;
+        spreadsheet::loadSpreadsheets();
         start_accept();
     }
 
@@ -41,6 +42,9 @@ private:
 
 int main() {
     try {
+
+        boost::asio::io_context io_context;
+        tcp_server server(io_context);
         std::thread t{
             [] {
                 std::string input;
@@ -49,16 +53,13 @@ int main() {
                     {
                         std::cout << "stop command given\n";
                         //TODO SAVE SPREADSHEETS
-                        spreadsheet::saveToFile();
+                        spreadsheet::saveSpreadsheets();
                         spreadsheet::serverShutdown("Shutting down the server");
                         exit(0);
                     }
             }
         };
         t.detach();
-
-        boost::asio::io_context io_context;
-        tcp_server server(io_context);
         io_context.run();
     }
     catch (std::exception& e) {

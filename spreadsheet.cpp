@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <boost/filesystem.hpp>
 
 using nlohmann::json;
 
@@ -135,34 +136,82 @@ void spreadsheet::clientDisconnected(int id)
     sendMessageToOthers(jsonMessage.dump(), id);
 }
 
-bool cmp(std::pair<std::string, cell>& a, std::pair<std::string, cell>& b)
-{
-    return a.first.substr(1, a.first.length()) < b.first.substr(1, b.first.length()) || a.first < b.first;
-}
-
 //Saves every cell to a file
-void spreadsheet::saveToFile(){
+void spreadsheet::saveSpreadsheets() {
     std::ofstream ssFile;
-    ssFile.open("ServerSpreadsheets.txt");
     std::cout << "saving..." << std::endl;
+    boost::filesystem::create_directory("./saves/");
 
     //loop through spreadsheets
-    for(const auto& sheet: spreadsheet::spreadsheets){
-        //adds spreadsheet name to file
-        //ssFile << sheet->second->spreadsheetName << "\n";
-        //loop through cells in each spreadsheet
-        std::vector<std::pair<std::string, cell> > sortedCells;
-        for (auto& it : sheet.second->cells) {
-            sortedCells.push_back(it);
+    for (const auto& sheet: spreadsheet::spreadsheets) {
+        ssFile.open("./saves/" + sheet.first + ".csv");
+        std::map<int, std::map<int, std::string>> vect;
+
+        // Loops through each cell and adds them to a 2d map
+        for (const auto& cell: sheet.second->cells) {
+            // Converts the second part of the cellName to an integer
+            int row = stoi(cell.first.substr(1, cell.first.length()));
+            // Converts the first character to a column position
+            int col = int(cell.first[0]) - 65;
+            vect[row][col] = cell.second.getContents();
         }
-        sort(sortedCells.begin(), sortedCells.end(), cmp);
+        std::string output;
+        for (int x = 0; x < vect.size(); ++x) {
+            for (int y = 0; y < vect[x].size(); ++y) {
+                // Adds contents of each cell and a comma to separate.
+                ssFile << vect[x][y];
+                ssFile << ",";
+            }
+            ssFile << std::endl;
+        }
+        ssFile.close();
+    }
+}
 
-        for(const auto& cell: sortedCells){
-           // ssFile << cell.second.getContents();
-            std::cout << cell.first << std::endl;
+void spreadsheet::loadSpreadsheets() {
+    std::ifstream ssFile;
+    std::cout << "Loading Spreadsheets..." << std::endl;
 
+    std::vector<boost::filesystem::path> paths;
+
+    // Checks to see if saves folder exists
+    if (boost::filesystem::exists("./saves/") && boost::filesystem::is_directory("./saves/")) {
+        // Iterates through all items in saves
+        for (auto const& entry : boost::filesystem::directory_iterator("./saves/")) {
+            // Checks to make sure the file is a csv file and readable
+            if (boost::filesystem::is_regular_file(entry) && entry.path().extension() == ".csv") {
+                // Open file at path
+                ssFile.open(entry.path().c_str());
+                // Create a new spreadsheet
+                auto* sheet = new spreadsheet();
+                std::string name = entry.path().filename().string();
+                // Add spreadsheet to list of spreadsheets on the server
+                spreadsheets[name.substr(0, name.length() - 4)] = sheet;
+                int row = 1;
+                std::string contents, line;
+                // Loops through every line in the file
+                while (std::getline(ssFile, line)) {
+                    // Starts the column at the first letter
+                    char col = 'a';
+                    // Goes through each character on the line
+                    for (char character: line) {
+                        if (character != ',') {
+                            contents += character;
+                        } else {
+                            // Create a new cell if it's empty
+                            if (!contents.empty()) {
+                                sheet->edit(col + std::to_string(row), contents, false);
+                                contents = "";
+                            }
+                            col++;
+                        }
+                    }
+                    row++;
+                }
+            }
         }
     }
+    std::cout << "Spreadsheets Loaded" << std::endl;
 }
 
 void spreadsheet::disconnect(client::pointer client) {

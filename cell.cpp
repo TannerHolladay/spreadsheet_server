@@ -20,7 +20,7 @@ bool cell::operator==(const cell& c) const {
     return ((this->contents == c.contents) && (this->cellName == c.cellName));
 }
 
-std::string cell::getContents() {
+std::string cell::getContents() const {
     return this->contents;
 }
 
