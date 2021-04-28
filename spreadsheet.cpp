@@ -31,6 +31,11 @@ void spreadsheet::revert(std::string cellName) {
     //if we have a cycle, rollback
     if(checkCircularDependencies(cellName)){
         undo();
+	json message = {
+		{"messageType", "requestError"},
+		{"cellName",    cellName},
+		{"message",    "This action creates a circular dependency and is not allowed."}
+        };
         return;
     }
 
@@ -54,12 +59,26 @@ void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo)
     }
 
     cells[cellName].updateContents(contents);
-    json message = {
-            {"messageType", "cellUpdated"},
-            {"cellName",    cellName},
-            {"contents",    contents}
-    };
-    sendMessage(message.dump());
+
+    //if we have a cycle, rollback
+    if(checkCircularDependencies(cellName)){
+        undo();
+	json message = {
+		{"messageType", "requestError"},
+		{"cellName",    cellName},
+		{"message",    "This action creates a circular dependency and is not allowed."}
+        };
+        return;
+    }
+    else {
+        json message = {
+                {"messageType", "cellUpdated"},
+                {"cellName",    cellName},
+                {"contents",    contents}
+        };
+        sendMessage(message.dump());
+    }
+
 }
 
 void spreadsheet::select(std::string cellName, client::pointer currentClient) {
