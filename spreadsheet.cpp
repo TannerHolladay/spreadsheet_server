@@ -158,11 +158,11 @@ void spreadsheet::sendMessageToOthers(std::string message, int id) {
 ///  Determines if a circular dependency exists
 /// \param cellName CellName to determine if a circular dependency exists. Example: "A4"
 /// \return True if circular dependency, False if no circular dependency
-bool checkCircularDependencies(std::string cellName)
+bool spreadsheet::checkCircularDependencies(std::string cellName)
 {
     // Recursively search for a circular dependency
-    std::set<std::string> visited = std::set<std::string>();
-    visit(cellName, cellName, &visited);
+    std::set<std::string> *visited = new std::set<std::string>();
+    visit(cellName, cellName, visited);
     return true; // false = 0, true = 1
 }
 
@@ -172,12 +172,12 @@ bool checkCircularDependencies(std::string cellName)
 /// \param currentCellName Current cell that will have its contents checked
 /// \param visited Set of seen cells
 /// \return
-bool visit(std::string originalCellName, std::string currentCellName, std::set<std::string> *visited)
+bool spreadsheet::visit(std::string originalCellName, std::string currentCellName, std::set<std::string> *visited)
 {
     std::cout << "Inside visit " << std::endl;
-    std::set<std::string> visited_set = *visited;
+    std::set<std::string> *visited_set = visited;
     // Check in the current cell as visited
-    visited_set.insert(currentCellName);
+    visited_set->insert(currentCellName);
     // Get current cell's direct dependents
     std::vector<std::string> directDependents = getDirectDependents(currentCellName);
     // Iterate over every direct dependent
@@ -190,10 +190,10 @@ bool visit(std::string originalCellName, std::string currentCellName, std::set<s
             return true;
         }
             // If dependent has not been visited yet
-        else if(visited_set.find(directDependents[i]) != visited->end())
+        else if(visited_set->find(directDependents[i]) != visited->end())
         {
             // continue recursively searching for every dependent
-            visit(originalCellName, directDependents[i], &visited_set);
+            visit(originalCellName, directDependents[i], visited_set);
         }
     }
     // If no circular exception was found then return false
@@ -207,9 +207,9 @@ bool visit(std::string originalCellName, std::string currentCellName, std::set<s
 /// Tokens: ["A4", "A16", "1"]
 /// \param cellName CellName from where contents will be extracted
 /// \return A vector containing all tokens.
-std::vector<std::string> getTokens(std::string cellName)
+std::vector<std::string> spreadsheet::getTokens(std::string cellName)
 {
-    std::string cellContents = cells[currentCell].getContents()
+    std::string cellContents = cells[cellName].getContents();
     std::cout << "Inside get tokens" << std::endl;
     std::vector<std::string> tokens = std::vector<std::string>();
     std::regex regSplit("(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
@@ -234,7 +234,7 @@ std::vector<std::string> getTokens(std::string cellName)
 /// Gets direct dependents from cell contents
 /// \param cellName
 /// \return A vector containing all of the cell dependents
-std::vector<std::string> getDirectDependents(std::string cellName)
+std::vector<std::string> spreadsheet::getDirectDependents(std::string cellName)
 {
     std::cout << "Inside directDependents " << std::endl;
     std::vector<std::string> directDependents = std::vector<std::string>();
