@@ -6,7 +6,9 @@
 #include <set>
 #include "cell.h"
 #include "client.h"
+#include "graph.h"
 #include <regex>
+#include <unordered_set>
 
 typedef std::pair<std::string, std::string> cellState;
 
@@ -40,7 +42,7 @@ public:
 
     bool visit(std::string originalCellName, std::string currentCellName, std::set<std::string> *visited);
 
-    std::vector<std::string> getDirectDependents(std::string cellName);
+    std::unordered_set<std::string> getDirectDependents(std::string cellName);
 
     std::vector<std::string> getTokens(std::string cellName);
 
@@ -58,6 +60,8 @@ private:
     std::vector<std::string> tokenize(std::string expression, std::regex rgx);
 
     std::stack<cellState> undoStack;
+
+    graph dependencies;
 };
 
 #endif
