@@ -125,6 +125,7 @@ void spreadsheet::saveSpreadsheets() {
             }
             ssFile << std::endl;
         }
+        ssFile.close();
     }
 }
 
