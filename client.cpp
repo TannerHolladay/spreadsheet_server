@@ -106,6 +106,7 @@ void client::sendMessage(const std::string& message) {
 
 // Event loop to process information into the spreadsheet from the client
 void client::doRead() {
+    buffer = ""; // Resets the buffer to be able to add more information
     auto self(shared_from_this());
     socket.async_read_some(
             boost::asio::buffer(data, max_length),
