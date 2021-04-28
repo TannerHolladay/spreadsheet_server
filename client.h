@@ -23,7 +23,7 @@ public:
 
     void doRead();
 
-    void closeSocket(boost::system::error_code error);
+    void closeSocket();
 
     spreadsheet* getCurrentSpreadsheet();
 
@@ -54,9 +54,7 @@ private:
     char data[max_length];
     std::string buffer;
 
-    bool isValidFormula(std::string formula);
 
-    std::vector<std::string> tokenize(std::string expression, std::regex rgx);
     
     void handleRawRequest(const std::string request);
 };

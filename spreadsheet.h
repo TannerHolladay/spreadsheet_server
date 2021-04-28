@@ -20,11 +20,11 @@ public:
 
     static void loadSpreadsheets();
 
-    void undo();
+    void undo(client::pointer currentClient);
 
-    void revert(std::string cellName);
+    void revert(std::string cellName, client::pointer currentClient);
 
-    void edit(std::string cellName, std::string contents, bool canUndo);
+    void edit(std::string cellName, std::string contents, bool canUndo, client::pointer currentClient);
 
     void select(std::string cellName, client::pointer currentClient);
 
@@ -47,11 +47,17 @@ public:
     std::vector<std::string> getTokens(std::string cellName);
 
     std::set<client::pointer> clients;
+
     static std::map<std::string, spreadsheet*> spreadsheets;
 
 private:
     std::map<std::string, cell> cells;
+
     std::string spreadsheetName;
+
+    bool isValidFormula(std::string formula);
+
+    std::vector<std::string> tokenize(std::string expression, std::regex rgx);
 
     std::stack<cellState> undoStack;
 };

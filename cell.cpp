@@ -35,3 +35,4 @@ std::string cell::revert() {
 bool cell::canRevert() {
     return !revertStack.empty();
 }
+

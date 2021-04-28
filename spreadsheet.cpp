@@ -13,15 +13,14 @@ spreadsheet::spreadsheet() {
 
 }
 
-void spreadsheet::undo() {
+void spreadsheet::undo(client::pointer currentClient) {
     if (undoStack.empty()) return;
     cellState undo = undoStack.top();
     undoStack.pop();
-
-    edit(undo.first, undo.second, false);
+    edit(undo.first, undo.second, false, currentClient);
 }
 
-void spreadsheet::revert(std::string cellName) {
+void spreadsheet::revert(std::string cellName, client::pointer currentClient) {
     // If cell hasn't been changed return
     if (cells.count(cellName) == 0 || !cells[cellName].canRevert()) return;
 
@@ -31,7 +30,8 @@ void spreadsheet::revert(std::string cellName) {
 
     //if we have a cycle, rollback
     if(checkCircularDependencies(cellName)){
-        undo();
+        // not sure if this is right
+        undo(currentClient);
         return;
     }
 
@@ -43,7 +43,32 @@ void spreadsheet::revert(std::string cellName) {
     sendMessage(message.dump());
 }
 
-void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo) {
+void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo, client::pointer currentClient) {
+
+    // Only for checking if a formula is valid
+    if (contents.size() > 1 && contents[0] == '=') {
+        try {
+            std::string formula = contents.substr(1);
+            isValidFormula(formula);
+        }
+        catch (std::string &message) {
+            json errorMessage = {
+                    {"messageType", "requestError"},
+                    {"cellName",    cellName},
+                    {"message",     message}
+            };
+            currentClient->sendMessage(errorMessage.dump());
+        }
+        if (checkCircularDependencies(cellName)) {
+            json errorMessage = {
+                    {"messageType", "requestError"},
+                    {"cellName",    cellName},
+                    {"message",     "Circular Dependency Detected"}
+            };
+            currentClient->sendMessage(errorMessage.dump());
+            return;
+        }
+    }
     //if cellName not in cells
     if (cells.count(cellName) == 0) {
         //create a cell
@@ -73,7 +98,6 @@ void spreadsheet::select(std::string cellName, client::pointer currentClient) {
             {"selectorName", currentClient->getClientName()}
     };
     // Send the message to all clients except the one who made the request
-    // clients don't have IDs right now, need to fix this
     sendMessageToOthers(message.dump(), currentClient->ID);
 }
 
@@ -214,6 +238,161 @@ void spreadsheet::sendMessageToOthers(std::string message, int id) {
 }
 
 
+/* isValidFormula: Determines whether a mathematical formula is syntactically correct.
+ * Example:
+ *     (1+1) //true
+ *     (1    //false
+ *
+ * Param:    string - The formula to be validated.
+ *
+ * Returns:  bool   - True if valid. False if invalid.
+ */
+bool spreadsheet::isValidFormula(std::string formula) {
+    std::vector<std::string> tokens;
+
+    std::regex rgxTokens("([0-9]+(\\.[0-9]+)?|[a-zA-Z]+[0-9]+|[\\(\\)\\+\\-\\*/])");
+    std::regex rgxDouble("([0-9]+(\\.[0-9]+)?)");
+    std::regex rgxValue("([a-zA-Z]+[0-9]+)");
+    std::regex rgxAddSubtract("([\\+\\-])");
+    std::regex rgxMultiplyDivide("([\\*/])");
+    std::regex rgxLeftParen("(\\()");
+    std::regex rgxRightParen("(\\))");
+    std::regex rgxWhitespace("(\\s+)");
+
+    if(formula.empty())
+    {
+        throw std::string("The formula is empty.");
+    }
+
+    tokens = tokenize(formula, rgxTokens);
+
+
+    std::stack<std::string> ops;
+    std::stack<double> vals;
+
+    bool isValid = false;
+
+    for(int tokenIndex = 0; tokenIndex < tokens.size(); tokenIndex++) {
+
+        std::string token = tokens[tokenIndex];
+
+        std::string topOperator = !ops.empty() ? ops.top() : "";
+
+        // Logic for double tokens
+        if(std::regex_match(token, rgxDouble)) {
+            if(topOperator == "*" || topOperator == "/") {
+                vals.pop();
+                ops.pop();
+            }
+
+            vals.push(0);
+        }
+            // Logic for values/variables like A1, BBX23 etc.
+        else if(std::regex_match(token, rgxValue)) {
+            if(topOperator == "*" || topOperator == "/") {
+                vals.pop();
+                ops.pop();
+            }
+
+            vals.push(0);
+        }
+            // Logic for addition and subtraction tokens
+        else if(std::regex_match(token, rgxAddSubtract)) {
+            if(topOperator == "+" || topOperator == "-") {
+                vals.pop();
+                vals.pop();
+                ops.pop();
+                vals.push(0);
+            }
+            ops.push(token);
+        }
+            // Logic for multiply and divide tokens
+        else if(std::regex_match(token, rgxMultiplyDivide)) {
+            ops.push(token);
+        }
+            // Logic for left parenthesis token
+        else if(std::regex_match(token, rgxLeftParen)) {
+            ops.push(token);
+        }
+            // Logic for right parenthesis token
+        else if(std::regex_match(token, rgxRightParen)) {
+            if(topOperator == "+" || topOperator == "-") {
+                vals.pop();
+                vals.pop();
+                ops.pop();
+                vals.push(0);
+            }
+
+            topOperator = !ops.empty() ? ops.top() : "";
+
+            if(topOperator == "(") {
+                ops.pop();
+            }
+            else {
+                throw std::string("Missing Parenthesis.");
+            }
+
+            topOperator = !ops.empty() ? ops.top() : "";
+
+            if(topOperator == "*" || topOperator == "/") {
+                vals.pop();
+                vals.pop();
+                ops.pop();
+                vals.push(0);
+            }
+        }
+        else if(std::regex_match(token, rgxWhitespace)) {
+            throw "This expression has an unknown token: " + token + ".";
+        }
+
+    }
+    // If the operators are empty there should be a final value on the value stack.
+    if(ops.empty()) {
+        if(vals.size() == 1) {
+            isValid = true;
+        }
+        else {
+            throw  std::string("Invalid expression.");
+        }
+    }
+        // If there are two values left and the operator stack is not empty
+        // then there is one operator left and it's a valid expression.
+    else if(vals.size() == 2) {
+        isValid = true;
+    }
+    else {
+        throw  std::string("An extra operator was given in the expression.");
+    }
+
+    return isValid;
+}
+
+/* Tokenize: Creates a vector of tokens from an expression/formula.
+ *
+ * Param1:    string - The expression to be tokenized.
+ * Param2:    regex  - The regular expression to match tokens.
+ *
+ * Returns:   vector - A vector containing tokens.
+ */
+std::vector<std::string> spreadsheet::tokenize(std::string expression, std::regex rgx){
+    std::smatch matches;
+    std::vector<std::string> tokenizedStrings;
+    std::regex rgxEmptyOrWhite("(^$|\\s+)");
+
+    // Search the expression for a token. When found, remove and search again.
+    while(std::regex_search(expression, matches, rgx)){
+
+        if(!regex_match(matches.str(1), rgxEmptyOrWhite)) {
+            // Push match to list
+            tokenizedStrings.push_back(matches.str(1));
+            // Eliminate the previous match and create a new string to search
+            expression = matches.suffix().str();
+        }
+    }
+
+    return tokenizedStrings;
+}
+
 ///  Determines if a circular dependency exists
 /// \param cellName CellName to determine if a circular dependency exists. Example: "A4"
 /// \return True if circular dependency, False if no circular dependency
@@ -221,8 +400,7 @@ bool spreadsheet::checkCircularDependencies(std::string cellName)
 {
     // Recursively search for a circular dependency
     std::set<std::string> *visited = new std::set<std::string>();
-    visit(cellName, cellName, visited);
-    return true; // false = 0, true = 1
+    return visit(cellName, cellName, visited); // false = 0, true = 1
 }
 
 ///
@@ -239,19 +417,18 @@ bool spreadsheet::visit(std::string originalCellName, std::string currentCellNam
     // Get current cell's direct dependents
     std::vector<std::string> directDependents = getDirectDependents(currentCellName);
     // Iterate over every direct dependent
-    for(int i = 0; i < directDependents.size(); i++)
+    for(auto & directDependent : directDependents)
     {
         // If a circular exception was found
-        std::string cell = directDependents[i];
-        if (cell==originalCellName)
+        if (directDependent == originalCellName)
         {
             return true;
         }
             // If dependent has not been visited yet
-        else if(visited_set->find(directDependents[i]) != visited->end())
+        else if(visited_set->count(directDependent) == 0)
         {
             // continue recursively searching for every dependent
-            visit(originalCellName, directDependents[i], visited_set);
+            return visit(originalCellName, directDependent, visited_set);
         }
     }
     // If no circular exception was found then return false
@@ -301,12 +478,12 @@ std::vector<std::string> spreadsheet::getDirectDependents(std::string cellName)
     std::regex reg("^[a-zA-Z]+[0-9]+$");
     //  Check which tokens are cellNames and add to directDependents
     std::smatch matches;
-    for (int i = 0; i < tokens.size(); i++)
+    for (auto & token : tokens)
     {
         // If current token is a cellName
-        if (std::regex_search(tokens[i], matches, reg))
+        if (std::regex_search(token, matches, reg))
         {
-            directDependents.push_back(tokens[i]);
+            directDependents.push_back(token);
         }
     }
     return directDependents;
