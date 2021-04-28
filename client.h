@@ -23,7 +23,7 @@ public:
 
     void doRead();
 
-    void closeSocket(boost::system::error_code error);
+    void closeSocket();
 
     spreadsheet* getCurrentSpreadsheet();
 

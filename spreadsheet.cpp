@@ -45,7 +45,7 @@ void spreadsheet::revert(std::string cellName, client::pointer currentClient) {
 void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo, client::pointer currentClient) {
 
     // Only for checking if a formula is valid
-    if (contents.size() >= 1 && contents[0] == '=') {
+    if (contents.size() > 1 && contents[0] == '=') {
         try {
             std::string formula = contents.substr(1);
             isValidFormula(formula);
@@ -67,25 +67,24 @@ void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo,
             currentClient->sendMessage(errorMessage.dump());
             return;
         }
-
-        //if cellName not in cells
-        if (cells.count(cellName) == 0) {
-            //create a cell
-            cells[cellName] = cell("", cellName);
-        }
-
-        if (canUndo) {
-            undoStack.push(cellState(cellName, cells[cellName].getContents()));
-        }
-
-        cells[cellName].updateContents(contents);
-        json message = {
-                {"messageType", "cellUpdated"},
-                {"cellName",    cellName},
-                {"contents",    contents}
-        };
-        sendMessage(message.dump());
     }
+    //if cellName not in cells
+    if (cells.count(cellName) == 0) {
+        //create a cell
+        cells[cellName] = cell("", cellName);
+    }
+
+    if (canUndo) {
+        undoStack.push(cellState(cellName, cells[cellName].getContents()));
+    }
+
+    cells[cellName].updateContents(contents);
+    json message = {
+            {"messageType", "cellUpdated"},
+            {"cellName",    cellName},
+            {"contents",    contents}
+    };
+    sendMessage(message.dump());
 }
 
 void spreadsheet::select(std::string cellName, client::pointer currentClient) {
@@ -352,8 +351,7 @@ bool spreadsheet::checkCircularDependencies(std::string cellName)
 {
     // Recursively search for a circular dependency
     std::set<std::string> *visited = new std::set<std::string>();
-    visit(cellName, cellName, visited);
-    return true; // false = 0, true = 1
+    return visit(cellName, cellName, visited); // false = 0, true = 1
 }
 
 ///
@@ -370,19 +368,18 @@ bool spreadsheet::visit(std::string originalCellName, std::string currentCellNam
     // Get current cell's direct dependents
     std::vector<std::string> directDependents = getDirectDependents(currentCellName);
     // Iterate over every direct dependent
-    for(int i = 0; i < directDependents.size(); i++)
+    for(auto & directDependent : directDependents)
     {
         // If a circular exception was found
-        std::string cell = directDependents[i];
-        if (cell==originalCellName)
+        if (directDependent == originalCellName)
         {
             return true;
         }
             // If dependent has not been visited yet
-        else if(visited_set->find(directDependents[i]) != visited->end())
+        else if(visited_set->count(directDependent) == 0)
         {
             // continue recursively searching for every dependent
-            visit(originalCellName, directDependents[i], visited_set);
+            return visit(originalCellName, directDependent, visited_set);
         }
     }
     // If no circular exception was found then return false
@@ -432,12 +429,12 @@ std::vector<std::string> spreadsheet::getDirectDependents(std::string cellName)
     std::regex reg("^[a-zA-Z]+[0-9]+$");
     //  Check which tokens are cellNames and add to directDependents
     std::smatch matches;
-    for (int i = 0; i < tokens.size(); i++)
+    for (auto & token : tokens)
     {
         // If current token is a cellName
-        if (std::regex_search(tokens[i], matches, reg))
+        if (std::regex_search(token, matches, reg))
         {
-            directDependents.push_back(tokens[i]);
+            directDependents.push_back(token);
         }
     }
     return directDependents;

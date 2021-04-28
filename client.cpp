@@ -84,7 +84,7 @@ void client::doHandshake() {
                     doHandshake();
                 } else {
                     // Closes the socket connection if any errors happened when connecting
-                    closeSocket(error);
+                    closeSocket();
                 }
             }
     );
@@ -98,7 +98,7 @@ void client::sendMessage(const std::string& message) {
             boost::asio::buffer(message + "\n", message.size() + 1),
             [this, self](boost::system::error_code error, std::size_t) {
                 if (error) {
-                    closeSocket(error);
+                    closeSocket();
                 }
             }
     );
@@ -127,6 +127,7 @@ void client::doRead() {
                     // Maybe combine this method with doHandshake some way? Like an if statement or something else?
                     if (!buffer.empty() &&
                         !std::all_of(buffer.begin(), buffer.end(), [](char c) { return std::isspace(c); })) {
+                        std::cout << "Received: " << buffer << std::endl;
                         handleRawRequest(buffer);
                     }
 
@@ -134,7 +135,7 @@ void client::doRead() {
                     doRead();
                 } else {
                     // Closes the socket connection if any errors happened when connecting
-                    closeSocket(error);
+                    closeSocket();
                 }
             }
     );
@@ -147,14 +148,13 @@ spreadsheet* client::getCurrentSpreadsheet() {
 }
 
 // Closes the socket
-void client::closeSocket(boost::system::error_code error) {
+void client::closeSocket() {
     if (currentSpreadsheet != nullptr) {
         currentSpreadsheet->disconnect(shared_from_this());
+        currentSpreadsheet->clientDisconnected(ID);
     }
-    socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
+    socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
     socket.close();
-
-    currentSpreadsheet->clientDisconnected(ID);
 
     std::cout << "Socket closed" << std::endl;
 }
