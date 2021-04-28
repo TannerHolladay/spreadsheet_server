@@ -10,7 +10,8 @@ using nlohmann::json;
 std::map<std::string, spreadsheet*> spreadsheet::spreadsheets = std::map<std::string, spreadsheet*>();
 
 spreadsheet::spreadsheet() {
-
+    dependencies = graph();
+    cells = std::map<std::string, cell>();
 }
 
 void spreadsheet::undo(client::pointer currentClient) {
@@ -80,6 +81,12 @@ void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo,
     }
 
     cells[cellName].updateContents(contents);
+    if (contents[0] == '=') {
+        dependencies.replaceDependees(cellName, cells[cellName].getContentVariables());
+    }
+    else {
+        dependencies.replaceDependees(cellName, std::vector<std::string>());
+    }
     json message = {
             {"messageType", "cellUpdated"},
             {"cellName",    cellName},
@@ -252,7 +259,7 @@ bool spreadsheet::isValidFormula(std::string formula) {
 
     std::regex rgxTokens("([0-9]+(\\.[0-9]+)?|[a-zA-Z]+[0-9]+|[\\(\\)\\+\\-\\*/])");
     std::regex rgxDouble("([0-9]+(\\.[0-9]+)?)");
-    std::regex rgxValue("([a-zA-Z]+[0-9]+)");
+    std::regex rgxVariable("([a-zA-Z]+[0-9]+)");
     std::regex rgxAddSubtract("([\\+\\-])");
     std::regex rgxMultiplyDivide("([\\*/])");
     std::regex rgxLeftParen("(\\()");
@@ -288,7 +295,7 @@ bool spreadsheet::isValidFormula(std::string formula) {
             vals.push(0);
         }
             // Logic for values/variables like A1, BBX23 etc.
-        else if(std::regex_match(token, rgxValue)) {
+        else if(std::regex_match(token, rgxVariable)) {
             if(topOperator == "*" || topOperator == "/") {
                 vals.pop();
                 ops.pop();
@@ -415,7 +422,7 @@ bool spreadsheet::visit(std::string originalCellName, std::string currentCellNam
     // Check in the current cell as visited
     visited_set->insert(currentCellName);
     // Get current cell's direct dependents
-    std::vector<std::string> directDependents = getDirectDependents(currentCellName);
+    std::unordered_set<std::string> directDependents = getDirectDependents(currentCellName);
     // Iterate over every direct dependent
     for(auto & directDependent : directDependents)
     {
@@ -469,9 +476,10 @@ std::vector<std::string> spreadsheet::getTokens(std::string cellName)
 /// Gets direct dependents from cell contents
 /// \param cellName
 /// \return A vector containing all of the cell dependents
-std::vector<std::string> spreadsheet::getDirectDependents(std::string cellName)
+std::unordered_set<std::string> spreadsheet::getDirectDependents(std::string cellName)
 {
-    std::cout << "Inside directDependents " << std::endl;
+    return dependencies.getDependents(cellName);
+    /** std::cout << "Inside directDependents " << std::endl;
     std::vector<std::string> directDependents = std::vector<std::string>();
     // Turn cellName into tokens
     std::vector<std::string> tokens = getTokens(cellName);
@@ -487,4 +495,5 @@ std::vector<std::string> spreadsheet::getDirectDependents(std::string cellName)
         }
     }
     return directDependents;
+     */
 }
