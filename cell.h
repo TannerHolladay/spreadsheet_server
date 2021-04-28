@@ -22,6 +22,7 @@ private:
     std::stack<std::string> revertStack;
     std::string cellName;
     std::string contents;
+
 };
 
 #endif
