@@ -9,6 +9,7 @@ using nlohmann::json;
 std::map<std::string, spreadsheet*> spreadsheet::spreadsheets = std::map<std::string, spreadsheet*>();
 
 spreadsheet::spreadsheet() {
+
 }
 
 void spreadsheet::undo() {
@@ -23,7 +24,16 @@ void spreadsheet::revert(std::string cellName) {
     // If cell hasn't been changed return
     if (cells.count(cellName) == 0 || !cells[cellName].canRevert()) return;
 
+    undoStack.push(cellState(cellName, cells[cellName].getContents()));
+
     std::string newContents = cells[cellName].revert();
+
+    //if we have a cycle, rollback
+    if(checkCircularDependencies(cellName)){
+        undo();
+        return;
+    }
+
     json message = {
             {"messageType", "cellUpdated"},
             {"cellName",    cellName},
@@ -165,7 +175,6 @@ bool checkCircularDependencies(std::string cellName)
     visit(cellName, cellName, &visited);
     return true; // false = 0, true = 1
 }
-
 
 ///
 /// \param originalCellName Cell who we are searching if a circular dependency exists.
