@@ -81,7 +81,7 @@ void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo,
     }
 
     cells[cellName].updateContents(contents);
-    if (contents[0] = '=') {
+    if (contents[0] == '=') {
         dependencies.replaceDependees(cellName, cells[cellName].getContentVariables());
     }
     else {
