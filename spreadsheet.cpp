@@ -29,7 +29,8 @@ void spreadsheet::revert(std::string cellName, client::pointer currentClient) {
 
     //if we have a cycle, rollback
     if(checkCircularDependencies(cellName)){
-        undo();
+        // not sure if this is right
+        undo(currentClient);
         return;
     }
 
@@ -44,48 +45,47 @@ void spreadsheet::revert(std::string cellName, client::pointer currentClient) {
 void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo, client::pointer currentClient) {
 
     // Only for checking if a formula is valid
-    if (contents.size() >= 1 && contents[0] == '=')
-    {
-        try{
+    if (contents.size() >= 1 && contents[0] == '=') {
+        try {
             std::string formula = contents.substr(1);
             isValidFormula(formula);
         }
-        catch (std::string& message)
-        {
+        catch (std::string &message) {
             json errorMessage = {
                     {"messageType", "requestError"},
                     {"cellName",    cellName},
                     {"message",     message}
             };
-            currentClient->sendMessage(errorMessage.message());
+            currentClient->sendMessage(errorMessage.dump());
         }
-        if(checkCircularDependencies(cellName)){
-                    json errorMessage = {
+        if (checkCircularDependencies(cellName)) {
+            json errorMessage = {
                     {"messageType", "requestError"},
                     {"cellName",    cellName},
                     {"message",     "Circular Dependency Detected"}
             };
             currentClient->sendMessage(errorMessage.dump());
-        return;
-    }
+            return;
+        }
 
-    //if cellName not in cells
-    if (cells.count(cellName) == 0) {
-        //create a cell
-        cells[cellName] = cell("", cellName);
-    }
+        //if cellName not in cells
+        if (cells.count(cellName) == 0) {
+            //create a cell
+            cells[cellName] = cell("", cellName);
+        }
 
-    if (canUndo) {
-        undoStack.push(cellState(cellName, cells[cellName].getContents()));
-    }
+        if (canUndo) {
+            undoStack.push(cellState(cellName, cells[cellName].getContents()));
+        }
 
-    cells[cellName].updateContents(contents);
-    json message = {
-            {"messageType", "cellUpdated"},
-            {"cellName",    cellName},
-            {"contents",    contents}
-    };
-    sendMessage(message.dump());
+        cells[cellName].updateContents(contents);
+        json message = {
+                {"messageType", "cellUpdated"},
+                {"cellName",    cellName},
+                {"contents",    contents}
+        };
+        sendMessage(message.dump());
+    }
 }
 
 void spreadsheet::select(std::string cellName, client::pointer currentClient) {
