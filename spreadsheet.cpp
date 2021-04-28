@@ -57,8 +57,16 @@ void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo,
                     {"cellName",    cellName},
                     {"message",     message}
             };
-            currentClient->sendMessage(errorMessage);
+            currentClient->sendMessage(errorMessage.message());
         }
+        if(checkCircularDependencies(cellName)){
+                    json errorMessage = {
+                    {"messageType", "requestError"},
+                    {"cellName",    cellName},
+                    {"message",     "Circular Dependency Detected"}
+            };
+            currentClient->sendMessage(errorMessage.dump());
+        return;
     }
 
     //if cellName not in cells
