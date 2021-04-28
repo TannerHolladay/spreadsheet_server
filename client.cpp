@@ -102,6 +102,7 @@ void client::sendMessage(const std::string& message) {
                 }
             }
     );
+    std::cout << "Sent: " << message << std::endl;
 }
 
 // Event loop to process information into the spreadsheet from the client
