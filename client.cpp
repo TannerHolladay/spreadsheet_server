@@ -59,10 +59,8 @@ void client::doHandshake() {
                             // After the username is received, the server sends the spreadsheets
                             if (!spreadsheet::spreadsheets.empty()) {
                                 std::string message;
-                                std::map<std::string, spreadsheet*>::iterator it;
-                                for (it = spreadsheet::spreadsheets.begin();
-                                     it != spreadsheet::spreadsheets.end(); it++) {
-                                    message += it->first + "\n";
+                                for (const auto& sheet: spreadsheet::spreadsheets) {
+                                    message += sheet.first + "\n";
                                 }
                                 sendMessage(message);
                             } else {

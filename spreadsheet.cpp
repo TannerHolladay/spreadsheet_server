@@ -46,7 +46,7 @@ void spreadsheet::revert(std::string cellName, client::pointer currentClient) {
 void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo, client::pointer currentClient) {
 
     // Only for checking if a formula is valid
-    if (contents.size() > 1 && contents[0] == '=') {
+    if (currentClient != nullptr && contents.size() > 1 && contents[0] == '=') {
         try {
             std::string formula = contents.substr(1);
             isValidFormula(formula);
@@ -200,7 +200,7 @@ void spreadsheet::loadSpreadsheets() {
                         } else {
                             // Create a new cell if it's empty
                             if (!contents.empty()) {
-                                sheet->edit(col + std::to_string(row), contents, false);
+                                sheet->edit(col + std::to_string(row), contents, false, nullptr);
                                 contents = "";
                             }
                             col++;
