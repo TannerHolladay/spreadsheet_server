@@ -6,6 +6,7 @@
 #include <set>
 #include "cell.h"
 #include "client.h"
+#include <regex>
 
 typedef std::pair<std::string, std::string> cellState;
 
@@ -34,6 +35,14 @@ public:
     void disconnect(client::pointer client);
 
     void clientDisconnected(int id);
+
+    bool checkCircularDependencies(std::string cellName);
+
+    bool visit(std::string originalCellName, std::string currentCellName, std::set<std::string> *visited);
+
+    std::vector<std::string> getDirectDependents(std::string cellName);
+
+    std::vector<std::string> getTokens(std::string cellName);
 
     std::set<client::pointer> clients;
     static std::map<std::string, spreadsheet*> spreadsheets;
