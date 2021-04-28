@@ -33,6 +33,8 @@ public:
 
     void disconnect(client::pointer client);
 
+    void clientDisconnected(int id);
+
     std::set<client::pointer> clients;
     static std::map<std::string, spreadsheet*> spreadsheets;
 
