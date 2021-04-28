@@ -2,49 +2,63 @@
 #define CLIENT
 
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
-#include <sys/socket.h>
+#include <memory>
+#include <regex>
 
 using boost::asio::ip::tcp;
 
-class client : public boost::enable_shared_from_this<client> {
-public:
-    enum { max_length = 5 };
-    typedef boost::shared_ptr<client> pointer;
+class spreadsheet;
 
-    static pointer create(boost::asio::io_context& io_context) {
-        return pointer(new client(io_context));
-    }
+class client : public std::enable_shared_from_this<client> {
+public:
+    typedef std::shared_ptr<client> pointer;
+
+    client(tcp::socket socket);
 
     ~client();
 
-    std::string getCurrentSpreadsheet();
+    void doHandshake();
 
-    void sendMessage(std::string data);
+    void sendMessage(const std::string& data);
 
-    void handleMessage(const boost::system::error_code& error, std::size_t bytes_transferred);
+    void doRead();
+
+    void closeSocket(boost::system::error_code error);
+
+    spreadsheet* getCurrentSpreadsheet();
 
     void setSelectedCell(std::string cellName);
 
-    void connect();
+    std::string getClientName();
 
-    //socket - be initialized by constructor
-    tcp::socket socket;
-    char data[max_length];
-    std::string buffer;
+    std::string getSelected();
+
+    int ID;
+
 private:
-    client(boost::asio::io_context& io_context);
-
-    //currentSpreadsheet - string containing the name of the spreadsheet the client is connected to
-    std::string currentSpreadsheet;
-    //this is the cell the client has selected
-    std::string currentSelectedCell;
+    static int clientCount;
 
     std::string userName;
 
-    void handleWrite(const boost::system::error_code&, size_t);
+    //currentSpreadsheet - string containing the name of the spreadsheet the client is connected to
+    spreadsheet* currentSpreadsheet;
 
-    void readMessage();
+    //this is the cell the client has selected
+    std::string currentSelectedCell;
+
+    //socket - be initialized by constructor
+    tcp::socket socket;
+    enum {
+        max_length = 1024
+    };
+    char data[max_length];
+    std::string buffer;
+
+    bool isValidFormula(std::string formula);
+
+    std::vector<std::string> tokenize(std::string expression, std::regex rgx);
+    
+    void handleRawRequest(const std::string request);
 };
 
 #endif

@@ -9,6 +9,7 @@ using nlohmann::json;
 std::map<std::string, spreadsheet*> spreadsheet::spreadsheets = std::map<std::string, spreadsheet*>();
 
 spreadsheet::spreadsheet() {
+
 }
 
 void spreadsheet::undo() {
@@ -174,7 +175,6 @@ bool checkCircularDependencies(std::string cellName)
     visit(cellName, cellName, &visited);
     return true; // false = 0, true = 1
 }
-
 
 ///
 /// \param originalCellName Cell who we are searching if a circular dependency exists.
