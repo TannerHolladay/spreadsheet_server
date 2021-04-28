@@ -15,7 +15,9 @@ public:
 
     static void serverShutdown(std::string message);
 
-    static void saveToFile();
+    static void saveSpreadsheets();
+
+    static void loadSpreadsheets();
 
     void undo();
 

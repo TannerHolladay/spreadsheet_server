@@ -42,6 +42,8 @@ void client::doHandshake() {
                         return;
                     }
 
+                    buffer = buffer.substr(0, buffer.size()-1);
+
                     // Checks to see if the buffer is empty or only whitespace
                     if (!buffer.empty() &&
                         !std::all_of(buffer.begin(), buffer.end(), [](char c) { return std::isspace(c); })) {
