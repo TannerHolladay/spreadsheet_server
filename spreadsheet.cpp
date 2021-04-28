@@ -47,11 +47,27 @@ void spreadsheet::revert(std::string cellName) {
     sendMessage(message.dump());
 }
 
-void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo) {
+void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo)
+{
     //if cellName not in cells
     if (cells.count(cellName) == 0) {
         //create a cell
         cells[cellName] = cell("", cellName);
+    }
+
+    try {
+        isValidFormula(contents)
+    }
+    catch (const char *msg) {
+        json message = {
+            {"messageType", "requestError"},
+            {"cellName", cellName},
+            {"message", msg}
+        };
+
+        sendMessage(message.dump());
+
+        return;
     }
 
     if (canUndo) {
@@ -61,24 +77,25 @@ void spreadsheet::edit(std::string cellName, std::string contents, bool canUndo)
     cells[cellName].updateContents(contents);
 
     //if we have a cycle, rollback
-    if(checkCircularDependencies(cellName)){
+    if (checkCircularDependencies(cellName)) {
         undo();
-	json message = {
-		{"messageType", "requestError"},
-		{"cellName",    cellName},
-		{"message",    "This action creates a circular dependency and is not allowed."}
+        json message = {
+            {"messageType", "requestError"},
+            {"cellName", cellName},
+            {"message", "This action creates a circular dependency and is not allowed."}
         };
+        sendMessage(message.dump());
+
         return;
     }
     else {
         json message = {
-                {"messageType", "cellUpdated"},
-                {"cellName",    cellName},
-                {"contents",    contents}
+            {"messageType", "cellUpdated"},
+            {"cellName", cellName},
+            {"contents", contents}
         };
         sendMessage(message.dump());
     }
-
 }
 
 void spreadsheet::select(std::string cellName, client::pointer currentClient) {
