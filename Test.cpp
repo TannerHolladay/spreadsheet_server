@@ -4,6 +4,7 @@
 
 #include "Test.h"
 #include "cell.h"
+#include "spreadsheet.h"
 #include <iostream>
 #include <cassert>
 
@@ -19,67 +20,22 @@ void TestName_Condition_Result() {
 	std::cout << --- FAIL --- <method name> << std::endl;
     }
 }
-
 */
+
+void Cell_WhenEmptyRevert_ReturnsNoContets();
+void Cell_AfterUpdate_ReturnsNoContets();
+void Cell_WithContents_CanRevert();
+void Cell_WithoutContents_CanRevert();
+void Cell_AfterUpdate_CanRevert();
+
 int main()
 {
-////////////CELL: Get Cell Contents/////////////////
-    std::cout << "CELL: Get Cell Contents Tests:" << std::endl << std::endl;
-
-    //Test 1
-    cell cell1("1","A1");
-    assert(cell1.getContents() == "1");
-
-
-////////////CELL: UpdateContents/////////////////
-    std::cout << "CELL: Update Contents Tests:" << std::endl << std::endl;
-
-    //Test 1
-    cell cell2("1","A2");
-    cell2.updateContents("2");
-    assert(cell2.getContents() == "2");
-
-////////////CELL: CanRevert/////////////////
-    std::cout << "CELL: canRevert Tests:" << std::endl << std::endl;
-
-    //Test 1
-    cell cell3("1","A3");
-    static_assert(cell3.canRevert(), "cell3 cannot revert");
-
-    //Test 2
-    cell cell4("","A4");
-    assert(cell4.canRevert());
-
-    //Test 3
-    cell cell5("","A5");
-    cell5.updateContents("1");
-    assert(cell5.canRevert());
-
-////////////CELL: Revert/////////////////
-    std::cout << "CELL: Revert Tests:" << std::endl << std::endl;
-
-    //Test 1
-    cell cell6("1","A6");
-    cell6.revert();
-    assert(cell6.getContents() == "");
-
-    //Test 2
-    cell cell7("1","A7");
-    cell7.updateContents("2");
-    cell7.revert();
-    assert(cell7.getContents() == "1");
-
-////////////CELL: Equality operator/////////////////
-    std::cout << "CELL: Equality operator Tests:" << std::endl << std::endl;
-
-    //Test 1
-    cell cell8("1+1", "A1");
-    cell cell9("1+1", "A1");
-    assert(cell8 == cell9);
-
-
+    Cell_WhenEmptyRevert_ReturnsNoContets();
+    Cell_AfterUpdate_ReturnsNoContets();
+    Cell_WithContents_CanRevert();
+    Cell_WithoutContents_CanRevert();
+    Cell_AfterUpdate_CanRevert();
 }
-
 
 /*******************************************************
  *
@@ -87,15 +43,69 @@ int main()
  *
  *******************************************************/
 
-void Spreadsheet_Parenthesis_IsValid() {
-	spreadsheet ss();
+void Cell_WhenEmptyRevert_ReturnsNoContets() {
 
-	bool isPassing = ss.isValidFormula("(1+1)");
+    cell cell1("1","A6");
+    cell1.revert();
+	std::string result = cell1.getContents();
 
-	if(isPassing) {
-		std::cout << "---Pass--- Spreadsheet_Parenthesis_IsValid" << std::endl;
+	if(result == "") {
+		std::cout << "---Pass--- Cell_WhenEmptyRevert_ReturnsNoContets" << std::endl;
 	}
 	else {
-		std::cout << "---Fail--- Spreadsheet_Parenthesis_IsValid" << std::endl;
+		std::cout << "---Fail--- Cell_WhenEmptyRevert_ReturnsNoContets" << std::endl;
 	}
 }
+
+void Cell_AfterUpdate_ReturnsNoContets() {
+
+    cell cell6("1","A6");
+    cell6.revert();
+	std::string result = cell6.getContents();
+
+	if(result == "") {
+		std::cout << "---Pass--- Cell_AfterUpdate_ReturnsNoContets" << std::endl;
+	}
+	else {
+		std::cout << "---Fail--- Cell_AfterUpdate_ReturnsNoContets" << std::endl;
+	}
+}
+
+void Cell_WithContents_CanRevert() {
+
+    cell cell1("1","A3");
+	if(cell1.canRevert()) {
+		std::cout << "---Pass--- Cell_WithContents_CanRevert" << std::endl;
+	}
+	else {
+		std::cout << "---Fail--- Cell_WithContents_CanRevert" << std::endl;
+	}
+}
+
+void Cell_WithoutContents_CanRevert() {
+
+    cell cell1("","A3");
+
+
+	if(cell1.canRevert()) {
+		std::cout << "---Pass--- Cell_WithoutContents_CanRevert" << std::endl;
+	}
+	else {
+		std::cout << "---Fail--- Cell_WithoutContents_CanRevert" << std::endl;
+	}
+}
+
+void Cell_AfterUpdate_CanRevert() {
+
+    cell cell1("","A3");
+    cell1.updateContents("2");
+
+	if(cell1.canRevert()) {
+		std::cout << "---Pass--- Cell_AfterUpdate_CanRevert" << std::endl;
+	}
+	else {
+		std::cout << "---Fail--- Cell_AfterUpdate_CanRevert" << std::endl;
+	}
+}
+
+
