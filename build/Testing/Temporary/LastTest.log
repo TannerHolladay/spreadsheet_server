@@ -1,0 +1,111 @@
+Start testing: Apr 26 02:38 America
+----------------------------------------------------------
+1/4 Testing: Cell.EqualityOperator
+1/4 Test: Cell.EqualityOperator
+Command: "/spreadsheet_server/build/tests" "--gtest_filter=Cell.EqualityOperator" "--gtest_also_run_disabled_tests"
+Directory: /spreadsheet_server/build
+"Cell.EqualityOperator" start time: Apr 26 02:38 America
+Output:
+----------------------------------------------------------
+Running main() from /spreadsheet_server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = Cell.EqualityOperator
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Cell
+[ RUN      ] Cell.EqualityOperator
+[       OK ] Cell.EqualityOperator (0 ms)
+[----------] 1 test from Cell (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"Cell.EqualityOperator" end time: Apr 26 02:38 America
+"Cell.EqualityOperator" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/4 Testing: Spreadsheet.updateCell
+2/4 Test: Spreadsheet.updateCell
+Command: "/spreadsheet_server/build/tests" "--gtest_filter=Spreadsheet.updateCell" "--gtest_also_run_disabled_tests"
+Directory: /spreadsheet_server/build
+"Spreadsheet.updateCell" start time: Apr 26 02:38 America
+Output:
+----------------------------------------------------------
+Running main() from /spreadsheet_server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = Spreadsheet.updateCell
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Spreadsheet
+[ RUN      ] Spreadsheet.updateCell
+[       OK ] Spreadsheet.updateCell (0 ms)
+[----------] 1 test from Spreadsheet (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"Spreadsheet.updateCell" end time: Apr 26 02:38 America
+"Spreadsheet.updateCell" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/4 Testing: Client.sendMessage
+3/4 Test: Client.sendMessage
+Command: "/spreadsheet_server/build/tests" "--gtest_filter=Client.sendMessage" "--gtest_also_run_disabled_tests"
+Directory: /spreadsheet_server/build
+"Client.sendMessage" start time: Apr 26 02:38 America
+Output:
+----------------------------------------------------------
+Running main() from /spreadsheet_server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = Client.sendMessage
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Client
+[ RUN      ] Client.sendMessage
+[       OK ] Client.sendMessage (0 ms)
+[----------] 1 test from Client (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"Client.sendMessage" end time: Apr 26 02:38 America
+"Client.sendMessage" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/4 Testing: Client.formulaError
+4/4 Test: Client.formulaError
+Command: "/spreadsheet_server/build/tests" "--gtest_filter=Client.formulaError" "--gtest_also_run_disabled_tests"
+Directory: /spreadsheet_server/build
+"Client.formulaError" start time: Apr 26 02:38 America
+Output:
+----------------------------------------------------------
+Running main() from /spreadsheet_server/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = Client.formulaError
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Client
+[ RUN      ] Client.formulaError
+[       OK ] Client.formulaError (0 ms)
+[----------] 1 test from Client (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"Client.formulaError" end time: Apr 26 02:38 America
+"Client.formulaError" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Apr 26 02:38 America

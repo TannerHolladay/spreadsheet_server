@@ -1,0 +1,55 @@
+# This image will be based on the ubuntu image.  Build it using the
+# command in the comment below.  You may omit the ubuntu pull if you already
+# did it.  Before running the build, change into the directory containing
+# this Dockerfile.  (Remember, the filename is "Dockerfile" with no
+# extension.)
+#
+# docker pull ubuntu
+# docker build --tag myubuntu  .
+#
+# (Don't forget the trailing . to specify that this directory is the context.)
+
+FROM ubuntu
+
+# Set a default shell.
+
+SHELL ["/bin/bash", "-c"]
+
+# The timezone library stops the docker build and waits for user input to
+# select a timezone. This pauses/breaks the build. To get around this,
+# set up timezone environment variables prior to installing that library.
+# This Docker code does that. Composited from two sources:
+# https://rtfm.co.ua/en/docker-configure-tzdata-and-timezone-during-build/
+# https://serverfault.com/questions/949991/how-to-install-tzdata-on-a-ubuntu-docker-image
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ="America/Salt Lake City"
+
+# Install a handful of useful libraries.  Note that this is generally against
+# best practices -- containers should be lean, and not include 'things you
+# might use'.  In our case, we're using the containers for development, so
+# this may be reasonable temporarily.
+
+RUN apt-get -y update && apt-get -y install \
+  apt-utils \
+  emacs-nox \
+  vim \
+  git \
+  cmake \
+  g++ \
+  git-core \
+  python3 \
+  libboost-system-dev \
+  libboost-regex-dev \
+  libboost-thread-dev \
+  iputils-ping \
+  net-tools \
+  nlohmann-json3-dev \
+  libboost-filesystem-dev
+
+ 
+RUN mkdir spreadsheet_server
+RUN git  clone https://github.com/TannerHolladay/spreadsheet_server.git spreadsheet_server
+
+# Create a project folder in the image root directory.
+RUN cd /spreadsheet_server && make
