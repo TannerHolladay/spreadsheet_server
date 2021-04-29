@@ -120,6 +120,20 @@ void spreadsheet::join(client::pointer client) {
         };
         client->sendMessage(message.dump());
     }
+    if (!clients.empty())
+    {
+        for (const auto &otherClient : clients) {
+            if (otherClient->ID != client->ID) {
+                json message = {
+                        {"messageType",  "cellSelected"},
+                        {"cellName",     otherClient->getSelected()},
+                        {"selector",     std::to_string(otherClient->ID)},
+                        {"selectorName", otherClient->getClientName()}
+                };
+                this->sendMessage(message.dump());
+            }
+        }
+    }
     client->sendMessage(std::to_string(client->ID));
     client->doRead(); // Starts the loop that processes information from the client
 }
