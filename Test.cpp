@@ -58,9 +58,9 @@ int main()
 ////////////CELL: Equality operator/////////////////
     std::cout << "CELL: Equality operator Tests:" << std::endl << std::endl;
 
-        //Test 1
-        cell cell8("1+1", "A1");
-        cell cell9("1+1", "A1");
-        assert(cell8 == cell9);
+    //Test 1
+    cell cell8("1+1", "A1");
+    cell cell9("1+1", "A1");
+    assert(cell8 == cell9);
 
 }
