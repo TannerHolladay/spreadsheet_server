@@ -12,8 +12,10 @@ cell::cell() {
 }
 
 cell::cell(std::string cellName, std::string contents, spreadsheet* spreadsheet) {
+    this->revertStack = std::stack<std::string>();
     this->cellName = cellName;
     this->_spreadsheet = spreadsheet;
+    this->contentVariables = std::set<std::string>();
     updateContents(contents);
 }
 
@@ -47,17 +49,17 @@ void cell::sendUpdate(std::string newContents) {
     if (newContents.size() > 1 && newContents[0] == '=') {
         std::string formula = newContents.substr(1);
         variables = toContentVariables(formula);
-        isValidFormula(formula);
         searchCircular(this, variables);
+        isValidFormula(formula);
     }
 
+    contentVariables = variables;
     json message = {
             {"messageType", "cellUpdated"},
             {"cellName",    cellName},
             {"contents",    newContents}
     };
     _spreadsheet->sendMessage(message.dump());
-    contentVariables = variables;
 }
 
 bool cell::canRevert() {
@@ -152,10 +154,6 @@ bool cell::isValidFormula(std::string formula) {
         }
             // Logic for values/variables like A1, BBX23 etc.
         else if(std::regex_match(token, rgxVariable)) {
-            auto* cell = _spreadsheet->getCell(token);
-            if (cell == nullptr || cell->contents.empty()){
-                throw "Cell is empty";
-            }
             if(topOperator == "*" || topOperator == "/") {
                 vals.pop();
                 ops.pop();

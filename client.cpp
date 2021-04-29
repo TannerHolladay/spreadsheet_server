@@ -13,6 +13,8 @@ using nlohmann::json;
 int client::clientCount = 0;
 
 client::client(tcp::socket socket) : socket(std::move(socket)) {
+    currentSelectedCell = "A1";
+    userName = "";
     ID = clientCount++;
 }
 
@@ -115,7 +117,7 @@ void client::closeSocket() {
     std::cout << "Socket closed" << std::endl;
 }
 
-void client::handleRawRequest(const std::string& request, spreadsheet* currentSpreadsheet, client::pointer client) {
+void client::handleRawRequest(const std::string& request, spreadsheet* currentSpreadsheet, const client::pointer& client) {
     // Get the request type
     json jsonRequest = json::parse(request, nullptr, false);
     if (jsonRequest.is_discarded()) return;
@@ -124,7 +126,7 @@ void client::handleRawRequest(const std::string& request, spreadsheet* currentSp
     std::string cellName = jsonRequest.count("cellName") != 0 ? jsonRequest.at("cellName"): "";
     boost::algorithm::to_upper(cellName);
     if (requestType == "selectCell") {
-        if (client == nullptr) return;
+        if (currentSpreadsheet == nullptr || client == nullptr) return;
         currentSpreadsheet->select(cellName, client);
     } else {
         try {
@@ -165,4 +167,8 @@ void client::setSelectedCell(const std::string& cellName) {
 
 std::string client::getClientName() {
     return userName;
+}
+
+int client::getID() const {
+    return ID;
 }

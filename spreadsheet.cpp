@@ -56,11 +56,11 @@ void spreadsheet::select(const std::string& cellName, client::pointer client) {
     json message = {
             {"messageType",  "cellSelected"},
             {"cellName",     cellName},
-            {"selector",     std::to_string(client->ID)},
+            {"selector",     std::to_string(client->getID())},
             {"selectorName", client->getClientName()}
     };
     // Send the message to all clients except the one who made the request
-    sendMessageToOthers(message.dump(), client->ID);
+    sendMessageToOthers(message.dump(), client->getID());
 }
 
 void spreadsheet::join(client::pointer client) {
@@ -130,6 +130,7 @@ void spreadsheet::loadSpreadsheet(std::string name) {
     while (std::getline(ssFile, line)) {
         client::handleRawRequest(line, this, nullptr);
     }
+    ssFile.close();
 }
 
 void spreadsheet::disconnect(client::pointer client) {
@@ -150,7 +151,7 @@ void spreadsheet::sendMessage(const std::string& message) {
 void spreadsheet::sendMessageToOthers(const std::string& message, int id) {
     if (clients.empty()) return;
     for (const auto& client : clients) {
-        if (client->ID != id) {
+        if (client->getID() != id) {
             client->sendMessage(message);
         }
     }

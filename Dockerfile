@@ -5,7 +5,7 @@
 # extension.)
 #
 # docker pull ubuntu
-# docker build --tag myubuntu  .
+# docker build --tag server_arraysstartat1  .
 #
 # (Don't forget the trailing . to specify that this directory is the context.)
 
@@ -47,9 +47,7 @@ RUN apt-get -y update && apt-get -y install \
   nlohmann-json3-dev \
   libboost-filesystem-dev
 
- 
-RUN mkdir spreadsheet_server
-RUN git  clone https://github.com/TannerHolladay/spreadsheet_server.git spreadsheet_server
-
-# Create a project folder in the image root directory.
-RUN cd /spreadsheet_server && make
+RUN mkdir /spreadsheets
+COPY ./* ./
+RUN  make
+EXPOSE 1100

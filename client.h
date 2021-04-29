@@ -29,11 +29,13 @@ public:
 
     std::string getSelected();
 
-    int ID;
+    int getID() const;
 
-    static void handleRawRequest(const std::string& request, spreadsheet* currentSpreadsheet, client::pointer client);
+    static void handleRawRequest(const std::string& request, spreadsheet* currentSpreadsheet, const client::pointer& client);
 
 private:
+    int ID;
+
     static int clientCount;
 
     std::string userName;
