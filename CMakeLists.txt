@@ -23,7 +23,6 @@ add_executable(
     cell.cpp
     client.cpp
     spreadsheet.cpp
-	graph.cpp
 )
 
 target_link_libraries(

@@ -3,36 +3,34 @@
 
 #include <map>
 #include <stack>
-#include <set>
 #include "cell.h"
 #include "client.h"
-#include "graph.h"
 #include <regex>
-#include <unordered_set>
+#include <fstream>
 
 typedef std::pair<std::string, std::string> cellState;
 
 class spreadsheet {
 public:
-    spreadsheet();
+    spreadsheet(std::string name);
 
-    static void serverShutdown(std::string message);
+    static void serverShutdown(const std::string& message);
 
-    static void saveSpreadsheets();
+    void saveMessage(const std::string& message);
 
     static void loadSpreadsheets();
 
-    void undo(client::pointer currentClient);
+    void undo(std::string cellName);
 
-    void revert(std::string cellName, client::pointer currentClient);
+    void revert(const std::string& cellName);
 
-    void edit(std::string cellName, std::string contents, bool canUndo, client::pointer currentClient);
+    void edit(const std::string& cellName, const std::string& contents, bool canUndo);
 
-    void select(std::string cellName, client::pointer currentClient);
+    void select(const std::string& cellName, client::pointer client);
 
-    void sendMessage(std::string message);
+    void sendMessage(const std::string& message);
 
-    void sendMessageToOthers(std::string message, int id);
+    void sendMessageToOthers(const std::string& message, int id);
 
     void join(client::pointer client);
 
@@ -40,30 +38,20 @@ public:
 
     void clientDisconnected(int id);
 
-    bool checkCircularDependencies(std::string cellName);
-
-    bool visit(std::string originalCellName, std::string currentCellName, std::set<std::string> *visited);
-
-    std::unordered_set<std::string> getDirectDependents(std::string cellName);
-
-    std::vector<std::string> getTokens(std::string cellName);
+    cell* getCell(std::string name);
 
     std::set<client::pointer> clients;
 
     static std::map<std::string, spreadsheet*> spreadsheets;
 
+    void loadSpreadsheet(std::string name);
+
 private:
-    std::map<std::string, cell> cells;
+    std::ofstream _file;
 
-    std::string spreadsheetName;
-
-    bool isValidFormula(std::string formula);
-
-    std::vector<std::string> tokenize(std::string expression, std::regex rgx);
+    std::map<std::string, cell*> cells;
 
     std::stack<cellState> undoStack;
-
-    graph dependencies;
 };
 
 #endif

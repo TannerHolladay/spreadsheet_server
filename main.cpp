@@ -29,7 +29,7 @@ private:
         acceptor.async_accept(
                 [this](boost::system::error_code ec, tcp::socket socket) {
                     if (!ec) {
-                        std::make_shared<client>(std::move(socket))->doHandshake();
+                        std::make_shared<client>(std::move(socket))->doRead();
                     }
 
                     start_accept();
@@ -42,7 +42,6 @@ private:
 
 int main() {
     try {
-
         boost::asio::io_context io_context;
         tcp_server server(io_context);
         std::thread t{
@@ -51,9 +50,8 @@ int main() {
                 while (std::cin >> input)
                     if (input == "stop" || input == "Stop")
                     {
-                        std::cout << "stop command given\n";
+                        std::cout << "Shutting down server...\n";
                         //TODO SAVE SPREADSHEETS
-                        spreadsheet::saveSpreadsheets();
                         spreadsheet::serverShutdown("Shutting down the server");
                         exit(0);
                     }
