@@ -19,7 +19,6 @@ public:
     // Constructor for the tcp server that starts the method to accept connections
     tcp_server(boost::asio::io_context& io_context) : acceptor(io_context, tcp::endpoint(tcp::v4(), PORT)) {
         std::cout << "Server Started" << std::endl;
-        spreadsheet::loadSpreadsheets();
         start_accept();
     }
 
@@ -46,6 +45,7 @@ int main() {
         tcp_server server(io_context);
         std::thread t{
             [] {
+                spreadsheet::loadSpreadsheets();
                 std::string input;
                 while (std::cin >> input)
                     if (input == "stop" || input == "Stop")
