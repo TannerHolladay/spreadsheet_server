@@ -32,7 +32,7 @@ public:
 
     void sendMessageToOthers(const std::string& message, int id);
 
-    void join(client::pointer client);
+    void join(const client::pointer& client);
 
     void disconnect(client::pointer client);
 

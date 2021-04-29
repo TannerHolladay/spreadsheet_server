@@ -63,7 +63,7 @@ void spreadsheet::select(const std::string& cellName, client::pointer client) {
     sendMessageToOthers(message.dump(), client->getID());
 }
 
-void spreadsheet::join(client::pointer client) {
+void spreadsheet::join(const client::pointer& client) {
     clients.insert(client);
     std::cout << "Joined spreadsheet" << std::endl;
     // Send spreadsheet information to client
@@ -75,7 +75,7 @@ void spreadsheet::join(client::pointer client) {
         };
         client->sendMessage(message.dump());
     }
-    client->sendMessage(std::to_string(client->ID));
+    client->sendMessage(std::to_string(client->getID()));
     client->doRead(); // Starts the loop that processes information from the client
 }
 

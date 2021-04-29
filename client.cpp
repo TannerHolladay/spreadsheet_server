@@ -75,6 +75,7 @@ void client::doRead() {
                             // Join the spreadsheet
                             currentSpreadsheet = spreadsheet::spreadsheets[buffer];
                             currentSpreadsheet->join(shared_from_this());
+                            return;
                         } else {
                             handleRawRequest(buffer, currentSpreadsheet, shared_from_this());
                         }
