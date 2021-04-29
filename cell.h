@@ -4,6 +4,7 @@
 #include <stack>
 #include <vector>
 #include <regex>
+#include <set>
 
 class spreadsheet;
 
