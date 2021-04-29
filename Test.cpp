@@ -79,3 +79,23 @@ int main()
 
 
 }
+
+
+/*******************************************************
+ *
+ * Spreadsheet tests
+ *
+ *******************************************************/
+
+void Spreadsheet_Parenthesis_IsValid() {
+	spreadsheet ss();
+
+	bool isPassing = ss.isValidFormula("(1+1)");
+
+	if(isPassing) {
+		std::cout << "---Pass--- Spreadsheet_Parenthesis_IsValid" << std::endl;
+	}
+	else {
+		std::cout << "---Fail--- Spreadsheet_Parenthesis_IsValid" << std::endl;
+	}
+}
