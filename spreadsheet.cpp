@@ -10,6 +10,7 @@ using nlohmann::json;
 std::map<std::string, spreadsheet*> spreadsheet::spreadsheets = std::map<std::string, spreadsheet*>();
 
 spreadsheet::spreadsheet(std::string name) {
+    clients = std::set<client::pointer>();
     cells = std::map<std::string, cell*>();
     loadSpreadsheet(name);
     boost::filesystem::create_directory("./saves/");
@@ -147,6 +148,7 @@ void spreadsheet::sendMessage(const std::string& message) {
 
 // Send the message to all clients except the one who made the request
 void spreadsheet::sendMessageToOthers(const std::string& message, int id) {
+    if (clients.empty()) return;
     for (const auto& client : clients) {
         if (client->ID != id) {
             client->sendMessage(message);

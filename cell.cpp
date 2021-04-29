@@ -143,12 +143,19 @@ bool cell::isValidFormula(std::string formula) {
             if(topOperator == "*" || topOperator == "/") {
                 vals.pop();
                 ops.pop();
+                if (topOperator == "/" && token == "0"){
+                    throw "Can't devide by zero";
+                }
             }
 
             vals.push(0);
         }
             // Logic for values/variables like A1, BBX23 etc.
         else if(std::regex_match(token, rgxVariable)) {
+            auto* cell = _spreadsheet->getCell(token);
+            if (cell == nullptr || cell->contents.empty()){
+                throw "Cell is empty";
+            }
             if(topOperator == "*" || topOperator == "/") {
                 vals.pop();
                 ops.pop();

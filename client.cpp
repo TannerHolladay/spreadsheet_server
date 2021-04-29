@@ -13,8 +13,7 @@ using nlohmann::json;
 int client::clientCount = 0;
 
 client::client(tcp::socket socket) : socket(std::move(socket)) {
-    ID = clientCount;
-    clientCount++;
+    ID = clientCount++;
 }
 
 client::~client() {
@@ -129,9 +128,6 @@ void client::handleRawRequest(const std::string& request, spreadsheet* currentSp
         currentSpreadsheet->select(cellName, client);
     } else {
         try {
-            if (client != nullptr) {
-                currentSpreadsheet->saveMessage(request);
-            }
             if (requestType == "editCell") {
                 std::string cellContents = jsonRequest["contents"];
                 if (client == nullptr || client->getSelected() == cellName) {
@@ -142,7 +138,11 @@ void client::handleRawRequest(const std::string& request, spreadsheet* currentSp
             } else if (requestType == "undo") {
                 currentSpreadsheet->undo(cellName);
             }
+            if (client != nullptr) {
+                currentSpreadsheet->saveMessage(request);
+            }
         } catch (const char* message) {
+            if (client == nullptr) return;
             std::cout << "Error caught" << std::endl;
             json errorMessage = {
                     {"messageType", "requestError"},
