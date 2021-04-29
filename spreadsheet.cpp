@@ -8,24 +8,44 @@
 
 using nlohmann::json;
 
+// Initializes the static map of spreadsheets
 std::map<std::string, spreadsheet*> spreadsheet::spreadsheets = std::map<std::string, spreadsheet*>();
 
-spreadsheet::spreadsheet(std::string name) {
+spreadsheet::spreadsheet(const std::string& name) {
+    // Initializes the set of clients
     clients = std::set<client::pointer>();
+    // Initializes the map of cells
     cells = std::map<std::string, cell*>();
+    // Load all the spreadsheets from saves if there any
     loadSpreadsheet(name);
+    // Creates a saves directory if it doesn't exist
     boost::filesystem::create_directory("./saves/");
+    // Create and open save with name of the spreadsheet
     _file.open("./saves/" + name + ".txt", std::ios_base::app);
 }
 
+spreadsheet::~spreadsheet() {
+    // Closes the opened file
+    _file.close();
+    // Delete all cells in spreadsheet to release memory
+    for (const auto& cell: cells) {
+        delete cell.second;
+    }
+}
+
+// Undoes the last action unless it's an undo
 void spreadsheet::undo(std::string cellName) {
+    // If undoStack is empty, then ignore action
     if (undoStack.empty()) return;
-    _mtx.lock();
+    // Lock when editing values on spreadsheet
     cellState undo = undoStack.top();
-    undoStack.pop();
+    // Swap cellName to be passed to the error catcher if a formula or circular happen
     cellName.swap(undo.first);
-    _mtx.unlock();
+    // Try to edit the cell
     edit(cellName, undo.second, false);
+    _mtx.lock();
+    undoStack.pop();
+    _mtx.unlock();
 }
 
 void spreadsheet::revert(const std::string& cellName) {
@@ -57,7 +77,7 @@ void spreadsheet::edit(const std::string& cellName, const std::string& contents,
     _mtx.unlock();
 }
 
-void spreadsheet::select(const std::string& cellName, client::pointer client) {
+void spreadsheet::select(const std::string& cellName, const client::pointer& client) {
     client->setSelectedCell(cellName);
     // Update this when we add a JSON parser
     json message = {
@@ -70,9 +90,19 @@ void spreadsheet::select(const std::string& cellName, client::pointer client) {
     sendMessageToOthers(message.dump(), client->getID());
 }
 
-void spreadsheet::join(const client::pointer& client) {
+void spreadsheet::join(const client::pointer& newClient) {
     _mtx.lock();
-    clients.insert(client);
+    // Send newClient the cells that other clients have selected
+    for (const auto& client: clients) {
+        json message = {
+                {"messageType",  "cellSelected"},
+                {"cellName",     client->getSelected()},
+                {"selector",     std::to_string(client->getID())},
+                {"selectorName", client->getClientName()}
+        };
+        newClient->sendMessage(message.dump());
+    }
+    clients.insert(newClient);
     _mtx.unlock();
     std::cout << "Joined spreadsheet" << std::endl;
     // Send spreadsheet information to client
@@ -82,12 +112,13 @@ void spreadsheet::join(const client::pointer& client) {
                 {"cellName",    cell.first},
                 {"contents",    cell.second->getContents()}
         };
-        client->sendMessage(message.dump());
+        newClient->sendMessage(message.dump());
     }
-    client->sendMessage(std::to_string(client->getID()));
-    client->doRead(); // Starts the loop that processes information from the client
+    newClient->sendMessage(std::to_string(newClient->getID()));
+    newClient->doRead(); // Starts the loop that processes information from the client
 }
 
+// Send clients a message to tell them the server has shutdown and delete all sheets to release memory
 void spreadsheet::serverShutdown(const std::string& message) {
     json jsonMessage = {
             {"messageType", "serverError"},
@@ -95,16 +126,8 @@ void spreadsheet::serverShutdown(const std::string& message) {
     };
     for (auto sheet: spreadsheet::spreadsheets) {
         sheet.second->sendMessage(jsonMessage.dump());
+        delete sheet.second;
     }
-}
-
-void spreadsheet::clientDisconnected(int id)
-{
-    json jsonMessage = {
-            {"messageType", "disconnected"},
-            {"user", id}
-    };
-    sendMessageToOthers(jsonMessage.dump(), id);
 }
 
 //Saves every cell to a file
@@ -112,6 +135,7 @@ void spreadsheet::saveMessage(const std::string& message) {
     _file << message << std::endl;
 }
 
+// Load the saved spreadsheets
 void spreadsheet::loadSpreadsheets() {
     if (boost::filesystem::exists("./saves/") && boost::filesystem::is_directory("./saves/")) {
         std::cout << "Loading Spreadsheets..." << std::endl;
@@ -130,28 +154,37 @@ void spreadsheet::loadSpreadsheets() {
     }
 }
 
-void spreadsheet::loadSpreadsheet(std::string name) {
+// Load a saved spreadsheet file
+void spreadsheet::loadSpreadsheet(const std::string& name) {
     std::ifstream ssFile;
     ssFile.open("./saves/" + name + ".txt");
     std::cout << "Loading Spreadsheet: " << name << std::endl;
 
     std::string line;
+    // Read each line of the file and process the message
     while (std::getline(ssFile, line)) {
         client::handleRawRequest(line, this, nullptr);
     }
     ssFile.close();
 }
 
-void spreadsheet::disconnect(client::pointer client) {
+// When a client disconnects remove them from the spreadsheet and send others a message that they are gone
+void spreadsheet::disconnect(const client::pointer& client) {
     if (clients.count(client) > 0) {
         _mtx.lock();
         clients.erase(client);
         _mtx.unlock();
+        json jsonMessage = {
+                {"messageType", "disconnected"},
+                {"user", client->getID()}
+        };
+        sendMessageToOthers(jsonMessage.dump(), client->getID());
         std::cout << "Removed user: " + client->getClientName() + " from spreadsheet" << std::endl;
     }
     // Removes the client from this spreadsheet
 }
 
+// Send message to all clients in spreadsheet
 void spreadsheet::sendMessage(const std::string& message) {
     for (const auto& client : clients) {
         client->sendMessage(message);
@@ -168,6 +201,6 @@ void spreadsheet::sendMessageToOthers(const std::string& message, int id) {
     }
 }
 
-cell* spreadsheet::getCell(std::string name) {
+cell* spreadsheet::getCell(const std::string& name) {
     return cells.count(name) != 0 ? cells[name] : nullptr;
 }

@@ -13,7 +13,9 @@ typedef std::pair<std::string, std::string> cellState;
 
 class spreadsheet {
 public:
-    spreadsheet(std::string name);
+    spreadsheet(const std::string& name);
+
+    ~spreadsheet();
 
     static void serverShutdown(const std::string& message);
 
@@ -27,7 +29,7 @@ public:
 
     void edit(const std::string& cellName, const std::string& contents, bool canUndo);
 
-    void select(const std::string& cellName, client::pointer client);
+    void select(const std::string& cellName, const client::pointer& client);
 
     void sendMessage(const std::string& message);
 
@@ -35,17 +37,15 @@ public:
 
     void join(const client::pointer& client);
 
-    void disconnect(client::pointer client);
+    void disconnect(const client::pointer& client);
 
-    void clientDisconnected(int id);
-
-    cell* getCell(std::string name);
+    cell* getCell(const std::string& name);
 
     std::set<client::pointer> clients;
 
     static std::map<std::string, spreadsheet*> spreadsheets;
 
-    void loadSpreadsheet(std::string name);
+    void loadSpreadsheet(const std::string& name);
 
 private:
     std::mutex _mtx;

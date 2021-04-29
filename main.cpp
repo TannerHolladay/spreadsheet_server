@@ -1,5 +1,14 @@
 /**
- * Code based on async_tcp_echo_server.cpp and chat_server.cpp on https://www.boost.org/
+ * Team: Arrays_Start_At_1
+ * CS-3505 Spring 2021
+ * University of Utah
+ * Authors: Tanner Holladay, Abbey Nelson, Noah Carlson, Travis Schnider, Jimmy Glasscock, and Sergio Remigio
+ *
+ * Networking code based on async_tcp_echo_server.cpp and chat_server.cpp on https://www.boost.org/ from examples provided
+ * by Christopher M. Kohlhoff. Using the boost library to handle networking.
+ *
+ * Used nlohmann json for JSON serialization. https://github.com/nlohmann/json
+ *
  */
 #include <iostream>
 #include <memory>
@@ -8,6 +17,7 @@
 #include "client.h"
 #include "spreadsheet.h"
 #include <thread>
+#include <boost/algorithm/string/case_conv.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -43,19 +53,20 @@ int main() {
     try {
         boost::asio::io_context io_context;
         tcp_server server(io_context);
+        // Creates a new thread to watch for input
         std::thread t{
-            [] {
-                spreadsheet::loadSpreadsheets();
-                std::string input;
-                while (std::cin >> input)
-                    if (input == "stop" || input == "Stop")
-                    {
-                        std::cout << "Shutting down server...\n";
-                        //TODO SAVE SPREADSHEETS
-                        spreadsheet::serverShutdown("Shutting down the server");
-                        exit(0);
+                [] {
+                    spreadsheet::loadSpreadsheets();
+                    std::string input;
+                    while (std::cin >> input){
+                        boost::algorithm::to_lower(input);
+                        if (input == "stop" || input == "exit" || input == "quit") {
+                            std::cout << "Shutting down server...\n";
+                            spreadsheet::serverShutdown("Shutting down the server");
+                            exit(0);
+                        }
                     }
-            }
+                }
         };
         t.detach();
         io_context.run();

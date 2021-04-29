@@ -13,6 +13,7 @@ using nlohmann::json;
 int client::clientCount = 0;
 
 client::client(tcp::socket socket) : socket(std::move(socket)) {
+    currentSpreadsheet = nullptr;
     currentSelectedCell = "A1";
     userName = "";
     ID = clientCount++;
@@ -45,6 +46,7 @@ void client::doRead() {
                         return;
                     }
 
+                    // Removes the new line from the buffer to make it easier to read information
                     buffer.pop_back();
                     std::cout << "Received: " << buffer << std::endl;
 
@@ -77,6 +79,7 @@ void client::doRead() {
                             currentSpreadsheet->join(shared_from_this());
                             return;
                         } else {
+                            // Handles incoming json requests
                             handleRawRequest(buffer, currentSpreadsheet, shared_from_this());
                         }
                     }
@@ -93,6 +96,7 @@ void client::doRead() {
 
 // Sends a message to the client
 void client::sendMessage(const std::string& message) {
+    std::cout << "Sent: " << message << std::endl;
     auto self(shared_from_this());
     boost::asio::async_write(
             socket,
@@ -109,8 +113,8 @@ void client::sendMessage(const std::string& message) {
 void client::closeSocket() {
     if (!socket.is_open()) return;
     if (currentSpreadsheet != nullptr) {
+        // Remove client from spreadsheet and tell other clients the client disconnected
         currentSpreadsheet->disconnect(shared_from_this());
-        currentSpreadsheet->clientDisconnected(ID);
         currentSpreadsheet = nullptr;
     }
     socket.close();
@@ -118,13 +122,17 @@ void client::closeSocket() {
     std::cout << "Socket closed" << std::endl;
 }
 
+// Handles the json requests after the handshake
 void client::handleRawRequest(const std::string& request, spreadsheet* currentSpreadsheet, const client::pointer& client) {
     // Get the request type
     json jsonRequest = json::parse(request, nullptr, false);
-    if (jsonRequest.is_discarded()) return;
+    if (jsonRequest.is_discarded()) return; // If it isn't valid json, then reject it.
 
+    // Get the type of request that was received
     std::string requestType = jsonRequest["requestType"];
+    // Cell name is used in all requests except undo, so this is here to simplify the code.
     std::string cellName = jsonRequest.count("cellName") != 0 ? jsonRequest.at("cellName"): "";
+    // Converts cellname to uppercase to prevent duplicate cells
     boost::algorithm::to_upper(cellName);
     if (requestType == "selectCell") {
         if (currentSpreadsheet == nullptr || client == nullptr) return;
@@ -144,9 +152,8 @@ void client::handleRawRequest(const std::string& request, spreadsheet* currentSp
             if (client != nullptr) {
                 currentSpreadsheet->saveMessage(request);
             }
-        } catch (const char* message) {
-            if (client == nullptr) return;
-            std::cout << "Error caught" << std::endl;
+        } catch (const char* message) { // Error can be caught if there's a formula error or circular dependency
+            if (client == nullptr) return; // If error is caught during spreadsheet loading, then ignore it
             json errorMessage = {
                     {"messageType", "requestError"},
                     {"cellName",    cellName},
@@ -155,7 +162,6 @@ void client::handleRawRequest(const std::string& request, spreadsheet* currentSp
             client->sendMessage(errorMessage.dump());
         }
     }
-
 }
 
 std::string client::getSelected() {

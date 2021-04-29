@@ -49,7 +49,7 @@ void cell::sendUpdate(std::string newContents) {
     if (newContents.size() > 1 && newContents[0] == '=') {
         std::string formula = newContents.substr(1);
         variables = toContentVariables(formula);
-        searchCircular(this, variables);
+        searchCircular(cellName, variables);
         isValidFormula(formula);
     }
 
@@ -88,10 +88,10 @@ std::set<std::string> cell::getContentVariables() {
     return contentVariables;
 }
 
-void cell::searchCircular(cell* originalCell, std::set<std::string> cellSet)
+void cell::searchCircular(std::string originalCell, std::set<std::string> cellSet)
 {
-    for (std::string dependent: cellSet) {
-        if (dependent == originalCell->cellName) {
+    for (const std::string& dependent: cellSet) {
+        if (dependent == originalCell) {
             throw "Circular dependency";
         }
         cell* cellObject = _spreadsheet->getCell(dependent);

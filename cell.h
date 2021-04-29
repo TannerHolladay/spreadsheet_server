@@ -28,7 +28,7 @@ public:
 
     std::set<std::string> getContentVariables();
 
-    void searchCircular(cell* originalCell, std::set<std::string> cellSet);
+    void searchCircular(std::string originalCell, std::set<std::string> cellSet);
 
     std::set<std::string> contentVariables;
 private:
