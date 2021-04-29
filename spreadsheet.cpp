@@ -43,24 +43,24 @@ void spreadsheet::undo(std::string cellName) {
     cellName.swap(undo.first);
     // Try to edit the cell
     edit(cellName, undo.second, false);
-    _mtx.lock();
+    mtx.lock();
     undoStack.pop();
-    _mtx.unlock();
+    mtx.unlock();
 }
 
 void spreadsheet::revert(const std::string& cellName) {
     // If cell hasn't been changed return
     if (cells.count(cellName) == 0 || !cells[cellName]->canRevert()) return;
 
-    _mtx.lock();
+    mtx.lock();
     std::string oldContents = cells[cellName]->revert();
 
     undoStack.push(cellState(cellName, oldContents));
-    _mtx.unlock();
+    mtx.unlock();
 }
 
 void spreadsheet::edit(const std::string& cellName, const std::string& contents, bool canUndo) {
-    _mtx.lock();
+    mtx.lock();
     std::string oldContents;
     //if cellName not in cells
     if (cells.count(cellName) == 0) {
@@ -74,7 +74,7 @@ void spreadsheet::edit(const std::string& cellName, const std::string& contents,
     if (canUndo) {
         undoStack.push(cellState(cellName, oldContents));
     }
-    _mtx.unlock();
+    mtx.unlock();
 }
 
 void spreadsheet::select(const std::string& cellName, const client::pointer& client) {
@@ -91,7 +91,7 @@ void spreadsheet::select(const std::string& cellName, const client::pointer& cli
 }
 
 void spreadsheet::join(const client::pointer& newClient) {
-    _mtx.lock();
+    mtx.lock();
     // Send newClient the cells that other clients have selected
     for (const auto& client: clients) {
         json message = {
@@ -103,7 +103,7 @@ void spreadsheet::join(const client::pointer& newClient) {
         newClient->sendMessage(message.dump());
     }
     clients.insert(newClient);
-    _mtx.unlock();
+    mtx.unlock();
     std::cout << "Joined spreadsheet" << std::endl;
     // Send spreadsheet information to client
     for (auto cell: cells) {
@@ -171,9 +171,9 @@ void spreadsheet::loadSpreadsheet(const std::string& name) {
 // When a client disconnects remove them from the spreadsheet and send others a message that they are gone
 void spreadsheet::disconnect(const client::pointer& client) {
     if (clients.count(client) > 0) {
-        _mtx.lock();
+        mtx.lock();
         clients.erase(client);
-        _mtx.unlock();
+        mtx.unlock();
         json jsonMessage = {
                 {"messageType", "disconnected"},
                 {"user", client->getID()}

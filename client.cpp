@@ -154,6 +154,7 @@ void client::handleRawRequest(const std::string& request, spreadsheet* currentSp
                 currentSpreadsheet->saveMessage(request);
             }
         } catch (const char* message) { // Error can be caught if there's a formula error or circular dependency
+            currentSpreadsheet->mtx.unlock();
             if (client == nullptr) return; // If error is caught during spreadsheet loading, then ignore it
             json errorMessage = {
                     {"messageType", "requestError"},

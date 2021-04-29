@@ -47,8 +47,8 @@ public:
 
     void loadSpreadsheet(const std::string& name);
 
+    std::mutex mtx;
 private:
-    std::mutex _mtx;
 
     std::ofstream _file;
 
