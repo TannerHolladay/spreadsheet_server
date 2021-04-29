@@ -7,6 +7,20 @@
 #include <iostream>
 #include <cassert>
 
+/*
+Template 
+void TestName_Condition_Result() {
+    // Test Logic
+
+    if() {
+	std::cout << --- PASS --- <method name> << std::endl;
+    }
+    else{
+	std::cout << --- FAIL --- <method name> << std::endl;
+    }
+}
+
+*/
 int main()
 {
 ////////////CELL: Get Cell Contents/////////////////
@@ -62,5 +76,6 @@ int main()
     cell cell8("1+1", "A1");
     cell cell9("1+1", "A1");
     assert(cell8 == cell9);
+
 
 }
