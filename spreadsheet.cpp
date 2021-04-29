@@ -4,6 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include <nlohmann/json.hpp>
 #include <boost/filesystem.hpp>
+#include <mutex>
 
 using nlohmann::json;
 
@@ -19,9 +20,11 @@ spreadsheet::spreadsheet(std::string name) {
 
 void spreadsheet::undo(std::string cellName) {
     if (undoStack.empty()) return;
+    _mtx.lock();
     cellState undo = undoStack.top();
     undoStack.pop();
     cellName.swap(undo.first);
+    _mtx.unlock();
     edit(cellName, undo.second, false);
 }
 
@@ -29,12 +32,15 @@ void spreadsheet::revert(const std::string& cellName) {
     // If cell hasn't been changed return
     if (cells.count(cellName) == 0 || !cells[cellName]->canRevert()) return;
 
+    _mtx.lock();
     std::string oldContents = cells[cellName]->revert();
 
     undoStack.push(cellState(cellName, oldContents));
+    _mtx.unlock();
 }
 
 void spreadsheet::edit(const std::string& cellName, const std::string& contents, bool canUndo) {
+    _mtx.lock();
     std::string oldContents;
     //if cellName not in cells
     if (cells.count(cellName) == 0) {
@@ -48,6 +54,7 @@ void spreadsheet::edit(const std::string& cellName, const std::string& contents,
     if (canUndo) {
         undoStack.push(cellState(cellName, oldContents));
     }
+    _mtx.unlock();
 }
 
 void spreadsheet::select(const std::string& cellName, client::pointer client) {
@@ -64,7 +71,9 @@ void spreadsheet::select(const std::string& cellName, client::pointer client) {
 }
 
 void spreadsheet::join(const client::pointer& client) {
+    _mtx.lock();
     clients.insert(client);
+    _mtx.unlock();
     std::cout << "Joined spreadsheet" << std::endl;
     // Send spreadsheet information to client
     for (auto cell: cells) {
@@ -135,7 +144,9 @@ void spreadsheet::loadSpreadsheet(std::string name) {
 
 void spreadsheet::disconnect(client::pointer client) {
     if (clients.count(client) > 0) {
+        _mtx.lock();
         clients.erase(client);
+        _mtx.unlock();
         std::cout << "Removed user: " + client->getClientName() + " from spreadsheet" << std::endl;
     }
     // Removes the client from this spreadsheet

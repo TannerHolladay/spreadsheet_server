@@ -7,6 +7,7 @@
 #include "client.h"
 #include <regex>
 #include <fstream>
+#include <mutex>
 
 typedef std::pair<std::string, std::string> cellState;
 
@@ -47,6 +48,8 @@ public:
     void loadSpreadsheet(std::string name);
 
 private:
+    std::mutex _mtx;
+
     std::ofstream _file;
 
     std::map<std::string, cell*> cells;
