@@ -17,23 +17,21 @@ public:
 
     ~client();
 
-    void doHandshake();
+    void doRead();
 
     void sendMessage(const std::string& data);
 
-    void doRead();
-
     void closeSocket();
 
-    spreadsheet* getCurrentSpreadsheet();
-
-    void setSelectedCell(std::string cellName);
+    void setSelectedCell(const std::string& cellName);
 
     std::string getClientName();
 
     std::string getSelected();
 
     int ID;
+
+    static void handleRawRequest(const std::string& request, spreadsheet* currentSpreadsheet, client::pointer client);
 
 private:
     static int clientCount;
@@ -53,10 +51,6 @@ private:
     };
     char data[max_length];
     std::string buffer;
-
-
-    
-    void handleRawRequest(const std::string request);
 };
 
 #endif
