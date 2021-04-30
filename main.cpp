@@ -60,7 +60,7 @@ int main() {
                     std::string input;
                     while (std::cin >> input){
                         boost::algorithm::to_lower(input);
-                        if (input == "stop" || input == "exit" || input == "quit") {
+                        if (input == "stop" || input == "exit" || input == "quit" || input == "close") {
                             std::cout << "Shutting down server...\n";
                             spreadsheet::serverShutdown("Shutting down the server");
                             exit(0);
