@@ -101,6 +101,14 @@ void spreadsheet::join(const client::pointer& newClient) {
                 {"selectorName", client->getClientName()}
         };
         newClient->sendMessage(message.dump());
+        // Send current clients the cell that the new client has selected
+        message = {
+                {"messageType",  "cellSelected"},
+                {"cellName",     newClient->getSelected()},
+                {"selector",     std::to_string(newClient->getID())},
+                {"selectorName", newClient->getClientName()}
+        };
+        client->sendMessage(message.dump());
     }
     clients.insert(newClient);
     mtx.unlock();
