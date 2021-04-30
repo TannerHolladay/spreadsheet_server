@@ -51,7 +51,7 @@ private:
     enum {
         max_length = 1024
     };
-    char data[max_length];
+    char data[max_length]{};
     std::string buffer;
 };
 

@@ -27,7 +27,7 @@ using boost::asio::ip::tcp;
 class tcp_server {
 public:
     // Constructor for the tcp server that starts the method to accept connections
-    tcp_server(boost::asio::io_context& io_context) : acceptor(io_context, tcp::endpoint(tcp::v4(), PORT)) {
+    explicit tcp_server(boost::asio::io_context& io_context) : acceptor(io_context, tcp::endpoint(tcp::v4(), PORT)) {
         std::cout << "Server Started" << std::endl;
         start_accept();
     }

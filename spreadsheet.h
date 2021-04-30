@@ -13,7 +13,7 @@ typedef std::pair<std::string, std::string> cellState;
 
 class spreadsheet {
 public:
-    spreadsheet(const std::string& name);
+    explicit spreadsheet(const std::string& name);
 
     ~spreadsheet();
 

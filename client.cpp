@@ -15,6 +15,7 @@ int client::clientCount = 0;
 client::client(tcp::socket socket) : socket(std::move(socket)) {
     currentSpreadsheet = nullptr;
     currentSelectedCell = "A1";
+    buffer = "";
     userName = "";
     ID = clientCount++;
 }

@@ -90,7 +90,7 @@ std::set<std::string> cell::getContentVariables() {
     return contentVariables;
 }
 
-void cell::searchCircular(std::string originalCell, std::set<std::string> cellSet) {
+void cell::searchCircular(const std::string& originalCell, std::set<std::string> cellSet) {
     for (const std::string& dependent: cellSet) {
         if (dependent == originalCell) {
             throw "Circular dependency";
@@ -112,7 +112,7 @@ void cell::searchCircular(std::string originalCell, std::set<std::string> cellSe
  *
  * Returns:  bool   - True if valid. False if invalid.
  */
-bool cell::isValidFormula(std::string formula) {
+void cell::isValidFormula(std::string formula) {
     std::vector<std::string> tokens;
 
     std::regex rgxTokens("([0-9]+(\\.[0-9]+)?|[a-zA-Z]+[0-9]+|[\\(\\)\\+\\-\\*/])");
@@ -133,8 +133,6 @@ bool cell::isValidFormula(std::string formula) {
 
     std::stack<std::string> ops;
     std::stack<double> vals;
-
-    bool isValid;
 
     for (auto token : tokens) {
 
@@ -211,21 +209,15 @@ bool cell::isValidFormula(std::string formula) {
     }
     // If the operators are empty there should be a final value on the value stack.
     if (ops.empty()) {
-        if (vals.size() == 1) {
-            isValid = true;
-        } else {
+        if (vals.size() != 1) {
             throw "Invalid expression.";
         }
     }
         // If there are two values left and the operator stack is not empty
         // then there is one operator left and it's a valid expression.
-    else if (vals.size() == 2) {
-        isValid = true;
-    } else {
+    else if (vals.size() != 2) {
         throw "An extra operator was given in the expression.";
     }
-
-    return isValid;
 }
 
 /* Tokenize: Creates a vector of tokens from an expression/formula.

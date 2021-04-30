@@ -28,14 +28,14 @@ public:
 
     std::set<std::string> getContentVariables();
 
-    void searchCircular(std::string originalCell, std::set<std::string> cellSet);
+    void searchCircular(const std::string& originalCell, std::set<std::string> cellSet);
 
     std::set<std::string> contentVariables;
 private:
 
     void sendUpdate(std::string newContents);
 
-    bool isValidFormula(std::string formula);
+    void isValidFormula(std::string formula);
 
     std::vector<std::string> tokenize(std::string expression, std::regex rgx);
 
