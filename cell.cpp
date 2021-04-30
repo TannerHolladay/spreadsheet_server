@@ -19,7 +19,9 @@ cell::cell(std::string cellName, std::string contents, spreadsheet* spreadsheet)
     updateContents(contents);
 }
 
+// Update a cell's contents
 void cell::updateContents(std::string contents) {
+    // Checks for circular/formula errors and then sends update to client. This is called first to avoid data being changed if an error occurs.
     sendUpdate(contents);
     //push the old contents so we may revert
     revertStack.push(this->contents);
@@ -73,7 +75,7 @@ std::set<std::string> cell::toContentVariables(std::string content) {
     std::regex rgxEmptyOrWhite("(^$|\\s+)");
     std::regex rgxVariable("([a-zA-Z]+[0-9]+)");
 
-    while(std::regex_search(content, matches, rgxVariable)){
+    while (std::regex_search(content, matches, rgxVariable)) {
         std::string match = matches.str(1);
         boost::algorithm::to_upper(match);
         // Push match to list
@@ -88,14 +90,13 @@ std::set<std::string> cell::getContentVariables() {
     return contentVariables;
 }
 
-void cell::searchCircular(std::string originalCell, std::set<std::string> cellSet)
-{
+void cell::searchCircular(std::string originalCell, std::set<std::string> cellSet) {
     for (const std::string& dependent: cellSet) {
         if (dependent == originalCell) {
             throw "Circular dependency";
         }
         cell* cellObject = _spreadsheet->getCell(dependent);
-        if (cellObject != nullptr){
+        if (cellObject != nullptr) {
             searchCircular(originalCell, cellObject->getContentVariables());
         }
     }
@@ -123,8 +124,7 @@ bool cell::isValidFormula(std::string formula) {
     std::regex rgxRightParen("(\\))");
     std::regex rgxWhitespace("(\\s+)");
 
-    if(formula.empty())
-    {
+    if (formula.empty()) {
         throw "The formula is empty.";
     }
 
@@ -136,16 +136,16 @@ bool cell::isValidFormula(std::string formula) {
 
     bool isValid;
 
-    for(auto token : tokens) {
+    for (auto token : tokens) {
 
-        std::string topOperator = !ops.empty() ? ops.top() : "";
+        std::string topOperator = !ops.empty() ? ops.top(): "";
 
         // Logic for double tokens
-        if(std::regex_match(token, rgxDouble)) {
-            if(topOperator == "*" || topOperator == "/") {
+        if (std::regex_match(token, rgxDouble)) {
+            if (topOperator == "*" || topOperator == "/") {
                 vals.pop();
                 ops.pop();
-                if (topOperator == "/" && token == "0"){
+                if (topOperator == "/" && token == "0") {
                     throw "Can't devide by zero";
                 }
             }
@@ -153,8 +153,8 @@ bool cell::isValidFormula(std::string formula) {
             vals.push(0);
         }
             // Logic for values/variables like A1, BBX23 etc.
-        else if(std::regex_match(token, rgxVariable)) {
-            if(topOperator == "*" || topOperator == "/") {
+        else if (std::regex_match(token, rgxVariable)) {
+            if (topOperator == "*" || topOperator == "/") {
                 vals.pop();
                 ops.pop();
             }
@@ -162,8 +162,8 @@ bool cell::isValidFormula(std::string formula) {
             vals.push(0);
         }
             // Logic for addition and subtraction tokens
-        else if(std::regex_match(token, rgxAddSubtract)) {
-            if(topOperator == "+" || topOperator == "-") {
+        else if (std::regex_match(token, rgxAddSubtract)) {
+            if (topOperator == "+" || topOperator == "-") {
                 vals.pop();
                 vals.pop();
                 ops.pop();
@@ -172,61 +172,57 @@ bool cell::isValidFormula(std::string formula) {
             ops.push(token);
         }
             // Logic for multiply and divide tokens
-        else if(std::regex_match(token, rgxMultiplyDivide)) {
+        else if (std::regex_match(token, rgxMultiplyDivide)) {
             ops.push(token);
         }
             // Logic for left parenthesis token
-        else if(std::regex_match(token, rgxLeftParen)) {
+        else if (std::regex_match(token, rgxLeftParen)) {
             ops.push(token);
         }
             // Logic for right parenthesis token
-        else if(std::regex_match(token, rgxRightParen)) {
-            if(topOperator == "+" || topOperator == "-") {
+        else if (std::regex_match(token, rgxRightParen)) {
+            if (topOperator == "+" || topOperator == "-") {
                 vals.pop();
                 vals.pop();
                 ops.pop();
                 vals.push(0);
             }
 
-            topOperator = !ops.empty() ? ops.top() : "";
+            topOperator = !ops.empty() ? ops.top(): "";
 
-            if(topOperator == "(") {
+            if (topOperator == "(") {
                 ops.pop();
-            }
-            else {
+            } else {
                 throw "Missing Parenthesis.";
             }
 
-            topOperator = !ops.empty() ? ops.top() : "";
+            topOperator = !ops.empty() ? ops.top(): "";
 
-            if(topOperator == "*" || topOperator == "/") {
+            if (topOperator == "*" || topOperator == "/") {
                 vals.pop();
                 vals.pop();
                 ops.pop();
                 vals.push(0);
             }
-        }
-        else if(std::regex_match(token, rgxWhitespace)) {
+        } else if (std::regex_match(token, rgxWhitespace)) {
             throw "This expression has an unknown token: " + token + ".";
         }
 
     }
     // If the operators are empty there should be a final value on the value stack.
-    if(ops.empty()) {
-        if(vals.size() == 1) {
+    if (ops.empty()) {
+        if (vals.size() == 1) {
             isValid = true;
-        }
-        else {
-            throw  "Invalid expression.";
+        } else {
+            throw "Invalid expression.";
         }
     }
         // If there are two values left and the operator stack is not empty
         // then there is one operator left and it's a valid expression.
-    else if(vals.size() == 2) {
+    else if (vals.size() == 2) {
         isValid = true;
-    }
-    else {
-        throw  "An extra operator was given in the expression.";
+    } else {
+        throw "An extra operator was given in the expression.";
     }
 
     return isValid;
@@ -239,15 +235,15 @@ bool cell::isValidFormula(std::string formula) {
  *
  * Returns:   vector - A vector containing tokens.
  */
-std::vector<std::string> cell::tokenize(std::string expression, std::regex rgx){
+std::vector<std::string> cell::tokenize(std::string expression, std::regex rgx) {
     std::smatch matches;
     std::vector<std::string> tokenizedStrings;
     std::regex rgxEmptyOrWhite("(^$|\\s+)");
 
     // Search the expression for a token. When found, remove and search again.
-    while(std::regex_search(expression, matches, rgx)){
+    while (std::regex_search(expression, matches, rgx)) {
 
-        if(!regex_match(matches.str(1), rgxEmptyOrWhite)) {
+        if (!regex_match(matches.str(1), rgxEmptyOrWhite)) {
             // Push match to list
             tokenizedStrings.push_back(matches.str(1));
             // Eliminate the previous match and create a new string to search
